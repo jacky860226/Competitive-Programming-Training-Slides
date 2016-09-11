@@ -1,0 +1,518 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<title>第一周-進階語法</title>
+		<meta name="description" content="Competitive Programming Training">
+		<meta name="author" content="SunMoon Master">
+		<meta name="apple-mobile-web-app-capable" content="yes">
+		<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+		<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, minimal-ui">
+		<link rel="stylesheet" href="reveal/css/reveal.css">
+		<link rel="stylesheet" href="reveal/css/theme/black.css" id="theme">
+		<link rel="stylesheet" href="css/style.css"><!-- Code syntax highlighting -->
+		<link rel="stylesheet" href="reveal/lib/css/zenburn.css">
+		<!-- Printing and PDF exports --><script>
+			var link = document.createElement( 'link' );
+			link.rel = 'stylesheet';
+			link.type = 'text/css';
+			link.href = window.location.search.match( /print-pdf/gi ) ? 'reveal/css/print/pdf.css' : 'reveal/css/print/paper.css';
+			document.getElementsByTagName( 'head' )[0].appendChild( link );
+		</script><!--[if lt IE 9]><script src="lib/js/html5shiv.js"></script><![endif]-->
+	</head>
+	<body>
+	<div></div>
+	<div class="reveal">
+		<div class="slides">
+			\( 
+			  \newcommand{\ord}[1]{\mathcal{O}\left(#1\right)}
+			  \newcommand{\abs}[1]{\lvert #1 \rvert}
+			  \newcommand{\floor}[1]{\lfloor #1 \rfloor}
+			  \newcommand{\ceil}[1]{\lceil #1 \rceil}
+			  \newcommand{\opord}{\operatorname{\mathcal{O}}}
+			  \newcommand{\argmax}{\operatorname{arg\,max}}
+			  \newcommand{\str}[1]{\texttt{"#1"}}
+			\)
+			<!-- ... 這裡是註解文字 ... -->
+			<section>
+				<h1>進階語法-輸入輸出</h1>
+			</section>
+			<section>
+				<section>
+					<h2>scanf</h2>
+				</section>
+				<section>
+					主要用來輸入的函數<br/>
+					當讀到檔案結尾會回傳EOF
+				</section>
+				<section data-markdown>
+					<script type="text/template">
+						scanf在輸入時有以下的引數寫法
+						
+						%[*][寬度]資料型態
+						
+						其中資料型態是必填欄位<br/>
+						其他欄位可有可無
+						
+						``` cpp
+						//範例:
+						int a;
+						scanf("%d",&a);
+						scanf("%*d%d",&a);
+						scanf("%5d",&a);
+						long long int b;
+						scanf("%lld",&b);
+						```
+					</script>
+				</section>
+				<section data-markdown>
+					<script type="text/template">
+						## 資料型態
+						總類繁多，是必填欄位
+						``` cpp
+						char c;
+						scanf("%c",&c);//輸入字元
+						
+						char s[105];
+						scanf("%s",s);//輸入字元陣列
+						
+						short st;
+						unsigned short ust;
+						scanf("%hd%hu",&st,&ust);//輸入10進位短整數、無號短整數
+						
+						int d,i;
+						scanf("%d%i",&d,&i);//輸入10進位整數
+						
+						unsigned int u;
+						scanf("%u",&u);//輸入10進位無號整數
+						
+						long long int l;
+						scanf("%lld",&l);//long long int, __int64
+						scanf("%I64d",&l);//(for MSVC)
+						
+						unsigned long long int ul;
+						scanf("%ull",&l);//unsigned long long int
+						scanf("%I64u",&l);//(for MSVC)
+						
+						float f;
+						scanf("%f",&f);//輸入單精度浮點數
+						
+						double lf;
+						scanf("%lf",&lf);//輸入倍精度浮點數
+						```
+					</script>
+				</section>
+				<section>
+					 %d : dec<br/>
+					 %i : integer<br/>
+					 於 scanf 時有部份差異 (%d 只接受10進位, %i 可接受指定進位，如 0x23, 045)，但於 printf 時 %d, %i 並無顯著差異
+				</section>
+				<section data-markdown>
+					<script type="text/template">
+						## long double
+						這是雙倍精度浮點數，使用他較不會有浮點數誤差，但運算速度慢，只能用cin來輸入
+						
+						``` cpp
+						long double ld;
+						cin>>ld;
+						printf("%Lf\n",ld);
+						
+						/* 不想用cin的話也可以這麼做 */
+						double f;
+						long double ld;
+						scanf("%lf",&f);
+						ld=f;
+						printf("%Lf\n",ld);
+						```
+					</script>
+				</section>
+				<section data-markdown>
+					<script type="text/template">
+						## 寬度
+						輸入的字元長度，以下舉幾個例子
+						``` cpp
+						char s[10];
+						int d;
+						scanf("%2s%d",s,&d);
+						printf("%s %d",s,d);
+						/*
+						輸入:
+						ab123
+						輸出:
+						ab 123
+						*/
+						
+						int a,b;
+						scanf("%3d%d",&a,&b);
+						printf("%d %d\n",a,b);
+						/*
+						輸入:
+						123456
+						輸出:
+						123 456
+						*/
+						```
+					</script>
+				</section>
+				<section data-markdown>
+					<script type="text/template">
+						## *
+						星號表示輸入的東西不需要儲存
+						
+						``` cpp
+						int a,b;
+						scanf("%d%*s%d",&a,&b);
+						printf("%d %d\n",a,b);
+						/*
+						輸入:
+						123 asdfasd 456
+						輸出:
+						123 456
+						*/
+						
+						int d;
+						scanf("%*2d%d",&d);
+						printf("%d\n",d);
+						/*
+						輸入:
+						123456
+						輸出:
+						3456
+						*/
+						```
+					</script>
+				</section>
+				<section data-markdown>
+					<script type="text/template">
+						## 格式化輸入
+						可以用奇怪的方式輸入資料
+						
+						``` cpp
+						int a,b;
+						scanf("(%d,%d)",&a,&b);
+						printf("%d %d\n",a,b);
+						/*
+						輸入:
+						(45,67)
+						輸出:
+						45 67
+						*/
+						```
+					</script>
+				</section>
+			</section>
+			<section>
+				<section>
+					<h2>輸入一整行</h2>
+				</section>
+				<section data-markdown>
+					<script type="text/template">
+						## getline
+						(C++ only)可以輸入一整行string，不包含換行字元<br/>
+						當讀到檔案結尾會回傳null
+						``` cpp
+						string s;
+						getline(cin,s);
+						cout<<s<<'\n';
+						/*
+						輸入:
+						aasfd gwerg gd
+						輸出:
+						aasfd gwerg gd
+						*/
+						```
+					</script>
+				</section>
+				<section data-markdown>
+					<script type="text/template">
+						## gets
+						可以輸入一整行字元陣列，把'\n'去除，並在結尾補'\0'<br/>
+						當讀到檔案結尾會回傳null
+						
+						有些新的標準會禁止使用這個函數，因為有危險性<br/>
+						可以用等下要講的fgets來代替他
+						``` cpp
+						char s[105];
+						gets(s);
+						printf("%s,123\n",s);
+						/*
+						輸入:
+						aasfd gwerg gd
+						輸出:
+						aasfd gwerg gd,123
+						*/
+						```
+					</script>
+				</section>
+				<section data-markdown>
+					<script type="text/template">
+						## fgets
+						可以輸入一整行字元陣列，並在結尾補'\0'<br/>
+						當讀到檔案結尾會回傳null
+						``` cpp
+						char s[105];
+						fgets(s,100,stdin);//100表示最大可輸入字元數
+						printf("%s,123\n",s);
+						/*
+						輸入:
+						aasfd gwerg gd
+						輸出:
+						aasfd gwerg gd
+						,123
+						*/
+						```
+					</script>
+				</section>
+			</section>
+			<section>
+				<section>
+					<h2>printf</h2>
+				</section>
+				<section>
+					類似於scanf，printf也有以下的引數寫法<br/>
+					%[旗標][寬度][.精度]資料型態<br/>
+					因為printf和scanf的資料型態一樣，所以就不重複說了
+				</section>
+				<section data-markdown>
+					<script type="text/template">
+						## 寬度
+						表示輸出的字元長度
+						``` cpp
+						int a=12;
+						printf("%05d\n",a);
+						//輸出:00012
+						
+						printf("%5d\n",a);
+						//輸出:   12
+						
+						printf("%0*d\n",5,a);
+						//輸出:00012
+						
+						printf("%*d\n",5,a);
+						//輸出:   12
+						```
+					</script>
+				</section>
+				<section data-markdown>
+					<script type="text/template">
+						## 精度
+						表示輸出的浮點數小數點後長度
+						``` cpp
+						double a=123.456;
+						printf("%.5lf\n",a);
+						//輸出:123.45600
+						
+						printf("%10.5lf\n",a);//和寬度混搭使用
+						//輸出: 123.45600
+						
+						printf("%010.5lf\n",a);//和寬度混搭使用
+						//輸出:0123.45600
+						
+						printf("%.*lf\n",5,a);
+						//輸出:123.45600
+						
+						printf("%*.*lf\n",10,5,a);//和寬度混搭使用
+						//輸出: 123.45600
+						
+						printf("%0*.*lf\n",10,5,a);//和寬度混搭使用
+						//輸出:0123.45600
+						```
+					</script>
+				</section>
+				<section data-markdown>
+					<script type="text/template">
+						## 旗標
+						幾乎沒用過，所以就不講了
+					</script>
+				</section>
+			</section>
+			<section data-markdown>
+				<script type="text/template">
+					## puts
+					輸出一行字元陣列並換行
+					
+					``` cpp
+					puts("123");
+					printf("456");
+					/*
+					輸出:
+					123
+					456
+					*/
+					```
+				</script>
+			</section>
+			<section>
+				<section>
+					<h2>stringstream</h2>
+				</section>
+				<section>
+					有的時候題目不會給說要輸入幾個數字<br/>
+					像是這一題
+					<div class="prob">
+						輸入有多行，每行長度小於1000字元<br/>
+						每行會有多個整數，請輸出每行的總和(總合為int範圍)<br/>
+						<hr/>
+						範例輸入:<br/>
+						1 2 3<br/>
+						45 67<br/>
+						100
+						<p/>
+						範例輸出:<br/>
+						6<br/>
+						112<br/>
+						100
+					</div>
+				</section>
+				<section>
+					剛剛教的所有東西都不能用啊<br/>
+					這個時候就可以用stringstream
+				</section>
+				<section data-markdown>
+					<script type="text/template">
+						## stringstream
+						可以把字串當作輸入輸出流來使用<br/>
+						使用要#include&lt;sstream&gt;
+						``` cpp
+						#include<sstream>
+						
+						char s[105]="123 446 789";
+						stringstream ss(s);
+						int a;
+						while(ss>>a){
+							printf("%d\n",a);
+						}
+						ss.clear();//使用完下一次使用時記得清空喔
+						ss.str("asdf vghj");
+						char c[10];
+						while(ss>>c){
+							printf("%s\n",c);
+						}
+						/*
+						輸出:
+						123
+						446
+						789
+						asdf
+						vghj
+						*/
+						```
+					</script>
+				</section>
+				<section data-markdown>
+					<script type="text/template">
+						這樣一開始那題就可以很容易解出來了
+						``` cpp
+						#include<sstream>
+						#include<cstdio>
+						using namespace std;
+						char s[1005];
+						int main(){
+							stringstream ss;
+							while(fgets(s,1000,stdin)){
+								int all=0,d;
+								ss.clear();
+								ss.str(s);
+								while(ss>>d){
+									all+=d;
+								}
+								printf("%d\n",all);
+							}
+							return 0;
+						}
+						```
+					</script>
+				</section>
+			</section>
+			<section>
+				<section>
+					<h2>cin,cout輸入優化</h2>
+				</section>
+				<section>
+					眾所皆知，cin、cout的效能是非常慢的<br/>
+					但是加了以下的優化後就會跟scanf、printf差不多快<br/>
+					(甚至更快)
+				</section>
+				<section data-markdown>
+					<script type="text/template">
+						C++為了兼容C，為了讓C++的輸入輸出和C的輸入輸出混用不會出錯，所以做了一些綁定讓效能變慢<br/>
+						只要加上這行，就可以解開綁定
+						
+						注意，解開綁定後就不能與C的輸入輸出混用
+						``` cpp
+						std::ios::sync_with_stdio(false);
+						```
+					</script>
+				</section>
+				<section data-markdown>
+					<script type="text/template">
+						tie是將兩個stream綁定的函數，預設cin和cout是綁定在一起的，只要加上這行，就可以解開cin,cout的綁定<br/>
+						(會等到程式結束時在一口氣輸出答案，debug時要拿掉)
+						``` cpp
+						std::cin.tie(0);
+						```
+						加了這一行後，千萬不可以使用std::endl<br/>
+						不然有加就等於沒加
+					</script>
+				</section>
+				<section data-markdown>
+					<script type="text/template">
+						習慣c++輸入輸出的人，就在main的開頭加入這兩行吧
+						``` cpp
+						int main(){
+							std::ios::sync_with_stdio(false);
+							std::cin.tie(0);
+							//
+							//write you code
+							//
+							return 0;
+						}
+						```
+					</script>
+				</section>
+			</section>
+			<!--結束了-->
+		</div>
+	</div>
+	<script src="js/jquery.js"></script>
+	<script src="reveal/lib/js/head.min.js"></script>
+	<script src="reveal/js/reveal.js"></script>
+	<script src="js/sketch.min.js"></script>
+	<script>// Full list of configuration options available at:
+	// https://github.com/hakimel/reveal.js#configuration
+	Reveal.initialize({
+	  controls: true,
+	  progress: true,
+	  history: true,
+	  center: true,
+	  //-showNotes: true,
+
+	  transition: 'slide', // none/fade/slide/convex/concave/zoom
+
+	  // Optional reveal.js plugins
+	  dependencies: [
+		{ src: 'reveal/lib/js/classList.js', condition: function() { return !document.body.classList; } },
+		{ src: 'reveal/plugin/markdown/marked.js', condition: function() { return !!document.querySelector( '[data-markdown]' ); } },
+		{ src: 'reveal/plugin/markdown/markdown.js', condition: function() { return !!document.querySelector( '[data-markdown]' ); } },
+		{ src: 'reveal/plugin/highlight/highlight.js', async: true, callback: function() { hljs.initHighlightingOnLoad(); } },
+		{ src: 'reveal/plugin/zoom-js/zoom.js', async: true },
+		{ src: 'reveal/plugin/notes/notes.js', async: true },
+		{ src: 'reveal/plugin/math/math.js', async: true, callback: function() {
+		  setTimeout( function() {
+			MathJax.Hub.Config({
+			  SVG: {
+				scale: 90
+				},
+			  "HTML-CSS": {
+				scale: 90,
+				}
+			  });
+			}, 2000);
+		  },
+		  config: 'TeX-AMS_HTML-full'
+		},
+		{ src: 'js/dazzleSketch.js', async: true }
+	  ]
+	});</script>
+	</body>
+</html>
