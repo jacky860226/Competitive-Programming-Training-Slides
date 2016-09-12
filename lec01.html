@@ -471,6 +471,63 @@
 					</script>
 				</section>
 			</section>
+			<section>
+				<section>
+					<h2>連續輸入</h2>
+				</section>
+				<section>
+					有些題目會說:<br/>
+					"測資有多行"、"有多筆測資"、"讀到檔案結尾(EOF)為止"<p/>
+					出現這種文字的都是教你連續輸入的意思
+				</section>
+				<section data-markdown>
+					<script type="text/template">
+						## C的連續輸入
+						``` cpp
+						int n;
+						while(scanf("%d",&n)!=EOF){
+							//do you thing
+						}
+						
+						char s[10005];
+						while(gets(s)){
+							//do you thing
+						}
+						
+						char s2[10005];
+						while(fgets(s2,10000,stdin)){
+							//do you thing
+						}
+						```
+					</script>
+				</section>
+				<section data-markdown>
+					<script type="text/template">
+						## C++的連續輸入
+						``` cpp
+						int n;
+						while(cin>>n){
+							//do you thing
+						}
+						
+						string s;
+						while(getline(cin,s)){
+							//do you thing
+						}
+						```
+					</script>
+				</section>
+			</section>
+			<section>
+				<h2>作業</h2>
+				<div class="theorem">
+					<div class="label">暫時存放區</div>
+					TEMP<hr/>
+					<a href="http://toj.tfcis.org/oj/pro/350/" target="_block">第一題</a>
+					<a href="http://toj.tfcis.org/oj/pro/351/" target="_block">第二題</a>
+					<a href="http://toj.tfcis.org/oj/pro/352/" target="_block">第三題</a>
+				</div>
+			</section>
 			<!--結束了-->
 		</div>
 	</div>
