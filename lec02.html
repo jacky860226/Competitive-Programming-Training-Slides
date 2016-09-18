@@ -1,0 +1,391 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<title>第二周-進階遞迴與質數</title>
+		<meta name="description" content="Competitive Programming Training">
+		<meta name="author" content="SunMoon Master">
+		<meta name="apple-mobile-web-app-capable" content="yes">
+		<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+		<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, minimal-ui">
+		<link rel="stylesheet" href="reveal/css/reveal.css">
+		<link rel="stylesheet" href="reveal/css/theme/black.css" id="theme">
+		<link rel="stylesheet" href="css/style.css"><!-- Code syntax highlighting -->
+		<link rel="stylesheet" href="reveal/lib/css/zenburn.css">
+		<!-- Printing and PDF exports --><script>
+			var link = document.createElement( 'link' );
+			link.rel = 'stylesheet';
+			link.type = 'text/css';
+			link.href = window.location.search.match( /print-pdf/gi ) ? 'reveal/css/print/pdf.css' : 'reveal/css/print/paper.css';
+			document.getElementsByTagName( 'head' )[0].appendChild( link );
+		</script><!--[if lt IE 9]><script src="lib/js/html5shiv.js"></script><![endif]-->
+	</head>
+	<body>
+	<div></div>
+	<div class="reveal">
+		<div class="slides">
+			\( 
+			  \newcommand{\ord}[1]{\mathcal{O}\left(#1\right)}
+			  \newcommand{\abs}[1]{\lvert #1 \rvert}
+			  \newcommand{\floor}[1]{\lfloor #1 \rfloor}
+			  \newcommand{\ceil}[1]{\lceil #1 \rceil}
+			  \newcommand{\opord}{\operatorname{\mathcal{O}}}
+			  \newcommand{\argmax}{\operatorname{arg\,max}}
+			  \newcommand{\str}[1]{\texttt{"#1"}}
+			\)
+			<!-- ... 這裡是註解文字 ... -->
+			<section>
+				<section>
+					<h1>進階遞迴</h1>
+				</section>
+				<section>
+					遞迴大家都學過了，所以就用一些練習題來複習一下吧!<br/>
+					但是題目會比之前的還進階喔
+				</section>
+			</section>
+			<section>
+				<section>
+					<h2>九連環</h2>
+					<img src="img/night_circle.png">
+				</section>
+				<section>
+					<h2>九連環的規則</h2>
+					<div class="theorem">
+						九連環一開始的時候有9個環，全部按順序套在一個柄上<br/>
+						每個環是互相牽制的，除了第１環，要取下或套上其他環是要在特定的狀態下才可以的，其規則有二：<br/>
+						<ul>
+                            <li class="fragment">規則一：第１環可以在任何時候套上或取下。</li>
+                            <li class="fragment">
+								規則二：想套上或取下第N環 (N > 1)，就必須將第 N-1 環套在柄上，而第 1 到 N-2 環全部取下，如此才能套上或取下第 N 環。
+							</li>
+                        </ul>
+					</div>
+					<div class="fragment">有沒有遞迴的感覺?</div>
+				</section>
+				<section>
+					<h2>給大家3分鐘想想遞迴式吧</h2>
+				</section>
+				<section>
+					<h2>九連環的遞迴式</h2>
+					<div class="theorem">
+						設\(in(n)\)為把第\(n\)個環套上所需的操作數，\(out(n)\)為把第\(n\)個環拿下所需的操作數，則:<br/>
+						$$in(n)=in(n-1)+out(n-2)+1+in(n-2)$$
+						$$out(n)=out(n-2)+1+in(n-2)+out(n-1)$$
+						當\(n=1\)時，\(in(n)=out(n)=1\)
+					</div>
+					<div class="fragment">可以寫程式了!</div>
+				</section>
+			</section>
+			<section>
+				<section>
+					<h2>八皇后問題</h2>
+					<img src="img/eight_queen.jpg">
+				</section>
+				<section>
+					<h2>八皇后問題</h2>
+					<div class="theorem">
+						在 8x8 的西洋棋棋盤上擺放八隻皇后，讓他們恰好無法互相攻擊對方，為了達到此目的，任兩個皇后都不能處於同一條橫行、縱行或斜線上。
+					</div>
+					目標是要算有幾種排列方式
+				</section>
+				<section>
+					<h2>想法</h2>
+					把所有的情況列出來吧<br/>
+					<img src="img/eight_queen2.jpg">
+				</section>
+				<section data-markdown>
+					<script type="text/template">
+						## 實作
+						利用遞迴，按造行數把皇后一個一個放上去，判斷能不能放，能放就繼續遞迴下去，不能放就離開遞迴
+						``` cpp
+						int ans = 0;
+						bool S[ 8 ][ 8 ] = {0};//紀錄現在的棋盤狀態
+						bool check( int x, int y ){
+							//判斷能不能放，自己實作
+						}
+						void dfs( int x ){
+							if( x == 8 ){
+								++ans;
+								return;
+							}
+							for(int i = 0; i < 8; ++i){
+								if( check( x, i) ){
+									s[ x ][ i ] = true;
+									dfs( x + 1 );
+									s[ x ][ i ] = false;
+								}
+							}
+						}
+						```
+					</script>
+				</section>
+				<section>
+					<h2>小心TLE喔<h2>
+				</section>
+			</section>
+			<section>
+				<section>
+					<h2>有趣的性質</h2>
+				</section>
+				<section data-markdown>
+					<script type="text/template">
+						## 左上右下
+						``` cpp
+						int n = 8;
+						for( int i = 0; i < n; ++i ){
+							for( int j = 0; j < n; ++j ){
+								printf("%2d ", i + j );
+							}
+							puts("");
+						}
+						```
+					</script>
+				</section>
+				<section data-markdown>
+					<script type="text/template">
+						## 右上左下
+						``` cpp
+						int n = 8;
+						for( int i = 0; i < n; ++i ){
+							for( int j = 0; j < n; ++j ){
+								printf("%2d ", i - j + n - 1 );
+							}
+							puts("");
+						}
+						```
+					</script>
+				</section>
+				<section>
+					應該對八皇后的解法很有幫助吧
+				</section>
+			</section>
+			<section>
+				<section>
+					<h2>merge sort</h2>
+					<div class="small">排序左半，排序右半，合併</div>
+				</section>
+				<section>
+					大家應該知道std::sort()吧?<br/>
+					雖然很方便但是大家應該還是要學一下merge_sort<p/>
+					<div class="fragment">因為這次的作業會用到!</div>
+				</section>
+			</section>
+			<section>
+				<section>
+					<h2>預備知識</h2>
+					<div class="prob">
+						<div class="label">序列合併問題</div>
+						sorted array merge problem<hr/>
+						給你兩個已經排序好的陣列\(A\)和\(B\)<br/>
+						請將這兩個陣列合併成一個排序好的陣列\(res\)<p/>
+						例如:<br/>
+						$$A=\{1,3,5,7\}$$
+						$$B=\{2,4,7,9,16,20\}$$
+						則經過此算法後
+						$$res=\{1,2,3,4,5,7,7,9,16,20\}$$
+					</div>
+					<div class="fragment">有沒有什麼很快的作法?</div>
+				</section>
+				<section>
+					<h2>很快的作法</h2>
+					合併的時候每次拿最小的，不過因為兩個陣列都已經被排序好，所以至多只需要檢查兩個元素
+				</section>
+				<section data-markdown>
+					<script type="text/template">
+						## 很快的作法
+						``` cpp
+						inline void merge( int *A, int na, int *B, int nb, int *res ){
+							//na表示A的長度，nb表示B的長度
+							
+							int i = 0, j = 0, res_id = 0;
+							
+							while( i < na && j < nb ){
+								//每次拿最小的塞到res裡面
+								if( B[ j ] < A[ i ] ){
+									res[ res_id ] = B[ j++ ];
+								}else{
+									res[ res_id ] = A[ i++ ];
+								}
+								++res_id;
+							}
+							
+							//最後把剩下來的通通塞到res後面
+							
+							while( i < na ){
+								res[ res_id++ ] = A[ i++ ];
+							}
+							while( j < nb ){
+								res[ res_id++ ] = B[ j++ ];
+							}
+						}
+						```
+					</script>
+				</section>
+				<section>
+					<h2>分析</h2>
+					因為每次只比較兩個元素，而且$A,\;B$兩陣列都會被存到$res$裡面，所以最多會執行約$\abs{A}+\abs{B}$次操作
+				</section>
+			</section>
+			<section>
+				<section>
+					<h2>正題</h2>
+					<div class="theorem">
+						我們可以利用<b>序列合併問題</b>來排序:<br/>
+						把一個序列從中間切分成兩個序列，將兩個序列排序完後合併<br/>
+						如果切分的序列長度>1，則繼續按此方法排序
+						<p/>
+						這句話有沒有遞迴的感覺?
+					</div>
+				</section>
+				<section>
+					<img src="img/merge_sort.png">
+				</section>
+				<section>
+					仔細看這過程，會發現每次都是把序列從中間切開，直到剩下一個元素為止<p/>
+					這樣做的話，會發現整棵樹的深度為$\ceil{log_2(n)}$<br/>
+					每一層有$n$個元素，用merge合併的話操作次數為$n$次<br/>
+					因此總共約會有$n*\ceil{log_2(n)}$次操作
+				</section>
+				<section data-markdown>
+					<script type="text/template">
+						## merge sort實作
+						``` cpp
+						#define MAXN 1000005
+						int s[MAXN],buffer[MAXN];
+
+						void merge_sort( int l, int r ){
+							if( l >= r ) return;//只有一個元素
+							
+							int mid = ( l + r ) / 2;//從中間切分
+							merge_sort( l, mid );
+							merge_sort( mid+1, r );
+							
+							int l_size = mid - l + 1;
+							int r_size = r - mid;
+							int range_size = r - l + 1;
+							
+							//合併兩個排序好的陣列，用剛剛寫的函數
+							merge( s + l, l_size, s + mid + 1, r_size, buffer);
+							
+							//因為合併完後是存在buffer裡，所以要把他複製回原本的陣列
+							for( int i = 0; i < range_size; ++i ){
+								s[ l++ ] = buffer[ i ];
+							}
+						}
+						```
+					</script>
+				</section>
+				<section data-markdown>
+					<script type="text/template">
+						## 測試
+						``` cpp
+						inline void test( int n ){
+							for( int i = 0; i < n; ++i ){
+								s[ i ] = rand();
+							}
+							
+							merge_sort( 0, n - 1 );
+							
+							//STL的stable_sort就是merge_sort喔
+							//stable_sort(s,s+n);
+							
+							for( int i = 0; i < n; ++i ){
+								printf( "%d ", s[ i ] );
+							}
+							puts("");
+						}
+						
+						int main(){
+							
+							srand(time(0));
+							test(1000000);
+							
+							return 0;
+						}
+						```
+					</script>
+				</section>
+			</section>
+			<section>
+				<section>
+					<h2>merge sort的影片</h2>
+				</section>
+				<section>
+					<iframe width="1280" height="720" src="https://www.youtube.com/embed/es2T6KY45cA" frameborder="0" allowfullscreen></iframe>
+				</section>
+				<section>
+					<iframe width="1280" height="720" src="https://www.youtube.com/embed/ZRPoEKHXTJg" frameborder="0" allowfullscreen></iframe>
+				</section>
+				<section>
+					<iframe width="1280" height="720" src="https://www.youtube.com/embed/L-E6KKmXR0o" frameborder="0" allowfullscreen></iframe>
+				</section>
+			</section>
+			<section>
+				<section>
+					<h2>分治法</h2>
+					Divide & Conquer
+				</section>
+				<section>
+					像這種把要算的東西分成很多份(不一定是分兩半)，分別把那幾分遞迴處理完之後，在合併成原來的答案<br/>
+					這種做法就稱為分治法
+				</section>
+				<section>
+					這次的作業中有分治法的題目喔<br/>
+					至於要怎麼分治就留給你們想像吧
+				</section>
+			</section>
+			<section>
+				<h2>遞迴題目</h2>
+				<div class="prob">
+					<div class="label">遞迴題目</div>
+					Recursion<hr/>
+					<a href="http://140.114.77.128:2720/sky/index.php/problem/view/5" target="_blank">九連環</a><br/>
+					<a href="http://140.114.77.128:2720/sky/index.php/problem/view/6" target="_blank">八皇后</a><br/>
+					<a href="http://140.114.77.128:2720/sky/index.php/problem/view/8" target="_blank">看著數列的卦長</a>
+				</div>
+			</section>
+			<!--結束了-->
+		</div>
+	</div>
+	<script src="js/jquery.js"></script>
+	<script src="reveal/lib/js/head.min.js"></script>
+	<script src="reveal/js/reveal.js"></script>
+	<script src="js/sketch.min.js"></script>
+	<script>// Full list of configuration options available at:
+	// https://github.com/hakimel/reveal.js#configuration
+	Reveal.initialize({
+	  controls: true,
+	  progress: true,
+	  history: true,
+	  center: true,
+	  //-showNotes: true,
+
+	  transition: 'slide', // none/fade/slide/convex/concave/zoom
+
+	  // Optional reveal.js plugins
+	  dependencies: [
+		{ src: 'reveal/lib/js/classList.js', condition: function() { return !document.body.classList; } },
+		{ src: 'reveal/plugin/markdown/marked.js', condition: function() { return !!document.querySelector( '[data-markdown]' ); } },
+		{ src: 'reveal/plugin/markdown/markdown.js', condition: function() { return !!document.querySelector( '[data-markdown]' ); } },
+		{ src: 'reveal/plugin/highlight/highlight.js', async: true, callback: function() { hljs.initHighlightingOnLoad(); } },
+		{ src: 'reveal/plugin/zoom-js/zoom.js', async: true },
+		{ src: 'reveal/plugin/notes/notes.js', async: true },
+		{ src: 'reveal/plugin/math/math.js', async: true, callback: function() {
+		  setTimeout( function() {
+			MathJax.Hub.Config({
+			  SVG: {
+				scale: 90
+				},
+			  "HTML-CSS": {
+				scale: 90,
+				}
+			  });
+			}, 2000);
+		  },
+		  config: 'TeX-AMS_HTML-full'
+		},
+		{ src: 'js/dazzleSketch.js', async: true }
+	  ]
+	});</script>
+	</body>
+</html>
