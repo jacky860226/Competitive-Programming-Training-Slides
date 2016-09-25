@@ -1,0 +1,528 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<title>第三周-基礎資料結構</title>
+		<meta name="description" content="Competitive Programming Training">
+		<meta name="author" content="SunMoon Master">
+		<meta name="apple-mobile-web-app-capable" content="yes">
+		<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+		<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, minimal-ui">
+		<link rel="stylesheet" href="reveal/css/reveal.css">
+		<link rel="stylesheet" href="reveal/css/theme/black.css" id="theme">
+		<link rel="stylesheet" href="css/style.css"><!-- Code syntax highlighting -->
+		<link rel="stylesheet" href="reveal/lib/css/zenburn.css">
+		<!-- Printing and PDF exports --><script>
+			var link = document.createElement( 'link' );
+			link.rel = 'stylesheet';
+			link.type = 'text/css';
+			link.href = window.location.search.match( /print-pdf/gi ) ? 'reveal/css/print/pdf.css' : 'reveal/css/print/paper.css';
+			document.getElementsByTagName( 'head' )[0].appendChild( link );
+		</script><!--[if lt IE 9]><script src="lib/js/html5shiv.js"></script><![endif]-->
+	</head>
+	<body>
+	<div></div>
+	<div class="reveal">
+		<div class="slides">
+			\( 
+			  \newcommand{\ord}[1]{\mathcal{O}\left(#1\right)}
+			  \newcommand{\abs}[1]{\lvert #1 \rvert}
+			  \newcommand{\floor}[1]{\lfloor #1 \rfloor}
+			  \newcommand{\ceil}[1]{\lceil #1 \rceil}
+			  \newcommand{\opord}{\operatorname{\mathcal{O}}}
+			  \newcommand{\argmax}{\operatorname{arg\,max}}
+			  \newcommand{\str}[1]{\texttt{"#1"}}
+			\)
+			<!-- ... 這裡是註解文字 ... -->
+			<section>
+				<section>
+					<h1>基礎資料結構</h1>
+				</section>
+				<section>
+					<h2>為什麼要學資料結構</h2>
+					<ul>
+						<li><b>資料結構</b>:如何在電腦中儲存資料</li>
+						<br/>
+						<li>
+							對於不同用途選擇不同資料結構<br/>
+							<ul>
+								<li>時間複雜度</li>
+								<li>空間複雜度</li>
+								<li>codeing複雜度</li>
+							</ul>
+						</li>
+						<br/>
+						<li>
+							資料結構是一種工具<br/>
+							<ul>
+								<li>(多種)演算法+(多種)資料結構</li>
+							</ul>
+						</li>
+					</ul>
+				</section>
+				<section>
+					<h2>常見的資料結構操作</h2>
+					<ul>
+						<li>push :放進一個元素</li>
+						<li>pop :拿出一個元素</li>
+						<li>query :各種查詢</li>
+					</ul>
+				</section>
+			</section>
+			<section>
+				<section>
+					<h2>stack</h2>
+				</section>
+				<section>
+					<ul>
+						<li>堆疊</li>
+						<li>
+							性質<br/>
+							<ul>
+								<li>first in last out(FILO)</li>
+								<li>疊盤子</li>
+							</ul>
+						</li>
+						<li>
+							基本操作<br/>
+							<ul>
+								<li>push :把一個元素放進頂端</li>
+								<li>pop :從頂端拿出一個元素</li>
+							</ul>
+						</li>
+					</ul>
+				</section>
+				<section>
+					<ul>
+						<li>
+							實作<br/>
+							<ul>
+								<li>使用陣列或linked list</li>
+							</ul>
+						</li>
+						<li>
+							陣列實作<br/>
+							<ul>
+								<li>用一個變數top紀錄頂端的位置</li>
+								<li>top = -1, stack是空的</li>
+								<li>push: top + 1</li>
+								<li>pop: top - 1</li>
+							</ul>
+						</li>
+					</ul>
+				</section>
+				<section data-markdown>
+					<script type="text/template">
+						## 實作
+						``` cpp
+						#define MAXN 1000005
+						int st[ MAXN ];
+						int top = -1;
+						inline void push( int data ){
+							top += 1;
+							st[ top ] = data;
+						}
+						inline void pop(){
+							top -= 1;
+						}
+						//st[ top ]就會是頂端的元素
+						```
+					</script>
+				</section>
+				<section>
+					<h2>stack示範影片</h2>
+					<iframe width="1200" height="560" src="https://www.youtube.com/embed/rRooF2z8ao0" frameborder="0" allowfullscreen></iframe>
+				</section>
+				<section>
+					<h2><a href="https://www.cs.usfca.edu/~galles/visualization/StackArray.html" target="_blank">stack用陣列模擬</a></h2>
+				</section>
+			</section>
+			<section>
+				<section>
+					<h2>queue</h2>
+				</section>
+				<section>
+					<ul>
+						<li>佇列</li>
+						<li>
+							性質<br/>
+							<ul>
+								<li>first in first out(FIFO)</li>
+								<li>排隊</li>
+							</ul>
+						</li>
+						<li>
+							基本操作<br/>
+							<ul>
+								<li>push :把一個元素放進尾端</li>
+								<li>pop :從頭端拿出一個元素</li>
+							</ul>
+						</li>
+					</ul>
+				</section>
+				<section>
+					<ul>
+						<li>
+							實作<br/>
+							<ul>
+								<li>使用陣列或linked list</li>
+							</ul>
+						</li>
+						<li>
+							陣列實作<br/>
+							<ul>
+								<li>用一個變數front紀錄頭端元素「前一格」的位置</li>
+								<li>用一個變數back紀錄尾端元素的位置</li>
+								<li>front == back : queue是空的</li>
+								<li>初始化front = back = -1</li>
+								<li>push : back + 1</li>
+								<li>pop : front + 1</li>
+							</ul>
+						</li>
+					</ul>
+				</section>
+				<section data-markdown>
+					<script type="text/template">
+						## 實作
+						``` cpp
+						#define MAXN 1000005
+						int que[ MAXN ];
+						int front = -1, back = -1;
+						inline void push( int data ){
+							back += 1;
+							que[ back ] = data;
+						}
+						inline void pop(){
+							front += 1;
+						}
+						//que[ front + 1 ]可以找頭元素
+						//que[ back ]可以找尾元素
+						```
+					</script>
+				</section>
+				<section>
+					<h2>queue示範影片<h2>
+					<iframe width="1200" height="560" src="https://www.youtube.com/embed/arj_9lzrpf4" frameborder="0" allowfullscreen></iframe>
+				</section>
+				<section>
+					<h2><a href="https://www.cs.usfca.edu/~galles/visualization/QueueArray.html" target="_blank">queue用陣列模擬</a></h2>
+				</section>
+			</section>
+			<section>
+				<section>
+					<h2>queue的問題</h2>
+				</section>
+				<section>
+					<ul>
+						<li>
+							陣列產生的問題<br/>
+							<ul>
+								<li>一個元素一旦被pop，該位置無法再放置新的元素</li>
+							</ul>
+						</li>
+						<li>
+							解決方法<br/>
+							<ul>
+								<li>當back到陣列最後的時候，把所有元素平移到陣列的前方</li>
+								<li>使用環狀queue</li>
+								<li>使用linked list</li>
+							</ul>
+						</li>
+					</ul>
+				</section>
+				<section data-markdown>
+					<script type="text/template">
+						## 解決方法1
+						``` cpp
+						#define MAXN 1000005
+						int que[ MAXN ];
+						int front = -1, back = -1;
+						inline void push( int data ){
+							back += 1;
+							que[ back ] = data;
+							if( back == MAXN - 1 ){
+								back = back - front - 1;
+								for( int i = 0; front < back; ++i, ++front ){
+									que[ i ] = que[ front + 1 ];
+								}
+								front = -1;
+							}
+						}
+						inline void pop(){
+							front += 1;
+						}
+						```
+					</script>
+				</section>
+				<section data-markdown>
+					<script type="text/template">
+						## 解決方法2
+						``` cpp
+						#define MAXN 1000005
+						int que[ MAXN ];
+						int front = -1, back = -1;
+						inline void push( int data ){
+							back = ( back + 1 ) % MAXN;
+							que[ back ] = data;
+						}
+						inline void pop(){
+							front = ( front + 1 ) % MAXN;
+						}
+						```
+					</script>
+				</section>
+				<section>
+					<h2>注意</h2>
+					不管怎樣queue裡的元素都不能超過陣列大小
+				</section>
+			</section>
+			<section>
+				<section>
+					<h2>linked list</h2>
+				</section>
+				<section>
+					<ul>
+						<li>鏈結串列</li>
+						<li>基本單元(node):data + pointer</li>
+						<li>將很多node連接起來</li>
+						<li>head指標指向第一個node，最後一個指標指向null<br/>(以單向連結串列為例子)</li>
+					</ul>
+					<img src="img/linkedlist.gif">
+				</section>
+				<section>
+					<h2>性質</h2>
+					<ul>
+						<li>每個元素只記錄他的下一個元素，外部只記錄起點</li>
+						<li>動態宣告記憶體</li>
+						<li>分類:單向、雙向、環狀</li>
+						<li>不能隨機存取</li>
+					</ul>
+				</section>
+				<section>
+					<h2>基本操作</h2>
+					<ul>
+						<li>
+							insert
+							<ul>
+								<li>在兩個元素中插入一個元素</li>
+								<li>在頭尾插入一個元素</li>
+							</ul>
+						</li>
+						<li>
+							erase
+							<ul>
+								<li>刪除一個元素</li>
+							</ul>
+						</li>
+					</ul>
+				</section>
+				<section>
+					<h2>insert</h2>
+					<img src="img/474px-CPT-LinkedLists-addingnode.svg.png">
+				</section>
+				<section>
+					<h2>erase</h2>
+					<img src="img/380px-CPT-LinkedLists-deletingnode.svg.png">
+				</section>
+			</section>
+			<section>
+				<section>
+					<h2>實作</h2>
+					實作方式有兩種，一種是用陣列，另一種是指標<br/>
+					但其實兩者都是在做指標的事情
+				</section>
+				<section data-markdown>
+					<script type="text/template">
+						## 指標實作
+						``` cpp
+						struct node{
+							int data;
+							node *next;
+							node():next( NULL ){}
+							node( int d, node *nt = NULL ):data(d), next( nt ){}
+						};
+						inline void insert( node *p, int data ){
+							//在p後面插入data
+							node *nt = p->next;
+							p->next = new node( data, nt );
+						}
+						inline void erase( node *p ){
+							//刪除p的"下一個"元素
+							node *nt = p->next;
+							p->next = p->next->next;
+							delete nt;
+						}
+						int main(){
+							node head;
+							insert( &head, 1 );
+							insert( &head, 2 );
+							node *t = head.next->next;
+							insert( t, 3 );
+							for( node *it = head.next; it != NULL; it = it->next ){
+								printf( "%d ", it->data );
+							}
+							puts("");
+							erase( head.next );
+							for( node *it = head.next; it != NULL; it = it->next ){
+								printf( "%d ", it->data );
+							}
+							puts("");
+							return 0;
+						}
+						```
+					</script>
+				</section>
+				<section data-markdown>
+					<script type="text/template">
+						## 陣列實作
+						``` cpp
+						#define MAXN 1000005
+						struct node{
+							int data;
+							int next;
+							node():next( 0 ){}
+							node( int d, int nt = 0 ):data(d), next( nt ){}
+						}nd[MAXN];
+						int top = 0;
+						inline void insert( int p, int data ){
+							//在p後面插入data
+							int nt = nd[ p ].next;
+							nd[ p ].next = ++top;
+							nd[ top ] = node( data, nt );
+						}
+						inline void erase( int p ){
+							//刪除p的"下一個"元素
+							nd[ p ].next = nd[ nd[ p ].next ].next;
+						}
+						int main(){
+							int head = 0;
+							insert( head, 1 );
+							insert( head, 2 );
+							int t = nd[ nd[ head ].next ].next;
+							insert( t, 3 );
+							for( int it = nd[ head ].next; it != 0; it = nd[ it ].next ){
+								printf( "%d ", nd[ it ].data );
+							}
+							puts("");
+							erase( nd[ head ].next );
+							for( int it = nd[ head ].next; it != 0; it = nd[ it ].next ){
+								printf( "%d ", nd[ it ].data );
+							}
+							puts("");
+							return 0;
+						}
+						```
+					</script>
+				</section>
+				<section>
+					<h2>指標實作 vs 陣列實作</h2>
+					<div class="theorem">
+						指標可以減少記憶體的用量，code也比較好看<br/>
+						但是陣列實作在「查詢某個特定編號的節點」佔有優勢，這次作業會出這種題目，而且資料結構不一定要按造給定的規則寫，只要能做到他要求的操作就算完成了<br/>
+					</div>
+				</section>
+			</section>
+			<section>
+				<section>
+					<h2>雙向、環狀linked list</h2>
+					聽名子就知道什麼意思了，應該可以不用講了吧?
+				</section>
+				<section>
+					<h2>雙向環狀</h2>
+					<img src="img/雙向環狀linkedlist.JPG">
+				</section>
+			</section>
+			<section>
+				<section>
+					<h2>stack常見題型 - 括號匹配</h2>
+				</section>
+				<section>
+					<h2>題目</h2>
+					<div class="prob">
+						<div class="label">括號匹配</div>
+						<hr/>
+						對於一個合法字串，我們有以下的定義:<br/>
+						空字串是合法字串<br/>
+						若$S_1, \;S_2$是合法字串，則$S_1S_2$也是合法字串<br/>
+						若$S$是合法字串，則$(S), \; [S], \; \{S\}$是合法字串<p/>
+						給定一個字串$SM$，請問$SM$是否是一個合法字串?
+					</div>
+				</section>
+				<section>
+					<h2>觀察</h2>
+					括號會包住合法字串，因此我們如果能把包住的字串先判斷完，再判斷括號有沒有對齊即可
+				</section>
+				<section>
+					<h2>用stack試試看</h2>
+					{[()]}<br/>
+					<img src="img/gebalanceerde_haakjes_stapel.png">
+				</section>
+				<section>
+					<h2>判斷</h2>
+					<ul>
+						<li>由左到右一個一個掃描字串</li>
+						<li>遇到左括號，丟進stack</li>
+						<li>遇到右括號，如果stack頂端的左括號和當前右括號匹配，則pop頂端元素，否則為不合法情況</li>
+						<li>如果整個字串都掃描過一遍，沒有出現不合法的情況，且最後stack是空的，則此字串為合法字串</li>
+					</ul>
+				</section>
+				<section>
+					這週關於stack的題目大多都是這種類型喔<br/>
+					一定要理解
+				</section>
+			</section>
+			<section>
+				<h2>本週作業</h2>
+				<div class="prob">
+					<div class="label">作業</div>
+					基礎資料結構<hr/>
+					stack: <a href="http://140.114.77.128:2720/sky/index.php/problem/view/12" target="_blank">第一題</a>、<a href="http://140.114.77.128:2720/sky/index.php/problem/view/13" target="_blank">第二題</a><br/>
+					queue: 下週的單元會大量用到queue，所以這週沒練習題<br/>
+					linked list: <a href="http://140.114.77.128:2720/sky/index.php/problem/view/14" target="_blank">第三題</a>
+				</div>
+			</section>
+			<!--結束了-->
+		</div>
+	</div>
+	<script src="js/jquery.js"></script>
+	<script src="reveal/lib/js/head.min.js"></script>
+	<script src="reveal/js/reveal.js"></script>
+	<script src="js/sketch.min.js"></script>
+	<script>// Full list of configuration options available at:
+	// https://github.com/hakimel/reveal.js#configuration
+	Reveal.initialize({
+	  controls: true,
+	  progress: true,
+	  history: true,
+	  center: true,
+	  //-showNotes: true,
+
+	  transition: 'slide', // none/fade/slide/convex/concave/zoom
+
+	  // Optional reveal.js plugins
+	  dependencies: [
+		{ src: 'reveal/lib/js/classList.js', condition: function() { return !document.body.classList; } },
+		{ src: 'reveal/plugin/markdown/marked.js', condition: function() { return !!document.querySelector( '[data-markdown]' ); } },
+		{ src: 'reveal/plugin/markdown/markdown.js', condition: function() { return !!document.querySelector( '[data-markdown]' ); } },
+		{ src: 'reveal/plugin/highlight/highlight.js', async: true, callback: function() { hljs.initHighlightingOnLoad(); } },
+		{ src: 'reveal/plugin/zoom-js/zoom.js', async: true },
+		{ src: 'reveal/plugin/notes/notes.js', async: true },
+		{ src: 'reveal/plugin/math/math.js', async: true, callback: function() {
+		  setTimeout( function() {
+			MathJax.Hub.Config({
+			  SVG: {
+				scale: 90
+				},
+			  "HTML-CSS": {
+				scale: 90,
+				}
+			  });
+			}, 2000);
+		  },
+		  config: 'TeX-AMS_HTML-full'
+		},
+		{ src: 'js/dazzleSketch.js', async: true }
+	  ]
+	});</script>
+	</body>
+</html>
