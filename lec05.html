@@ -1,0 +1,609 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<title>第五周-簡單檔案讀寫+heap</title>
+		<meta name="description" content="Competitive Programming Training">
+		<meta name="author" content="SunMoon Master">
+		<meta name="apple-mobile-web-app-capable" content="yes">
+		<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+		<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, minimal-ui">
+		<link rel="stylesheet" href="reveal/css/reveal.css">
+		<link rel="stylesheet" href="reveal/css/theme/black.css" id="theme">
+		<link rel="stylesheet" href="css/style.css"><!-- Code syntax highlighting -->
+		<link rel="stylesheet" href="reveal/lib/css/zenburn.css">
+		<!-- Printing and PDF exports --><script>
+			var link = document.createElement( 'link' );
+			link.rel = 'stylesheet';
+			link.type = 'text/css';
+			link.href = window.location.search.match( /print-pdf/gi ) ? 'reveal/css/print/pdf.css' : 'reveal/css/print/paper.css';
+			document.getElementsByTagName( 'head' )[0].appendChild( link );
+		</script><!--[if lt IE 9]><script src="lib/js/html5shiv.js"></script><![endif]-->
+	</head>
+	<body>
+	<div></div>
+	<div class="reveal">
+		<div class="slides">
+			\( 
+			  \newcommand{\ord}[1]{\mathcal{O}\left(#1\right)}
+			  \newcommand{\abs}[1]{\lvert #1 \rvert}
+			  \newcommand{\floor}[1]{\lfloor #1 \rfloor}
+			  \newcommand{\ceil}[1]{\lceil #1 \rceil}
+			  \newcommand{\opord}{\operatorname{\mathcal{O}}}
+			  \newcommand{\argmax}{\operatorname{arg\,max}}
+			  \newcommand{\str}[1]{\texttt{"#1"}}
+			\)
+			<!-- ... 這裡是註解文字 ... -->
+			<section>
+				<h1>簡單檔案讀寫<br/>&<br/>heap</h1>
+			</section>
+			<section>
+				<section>
+					<h2>簡單檔案讀寫</h2>
+				</section>
+				<section>
+					有的時候題目會要求你從某個檔案讀資料<br/>
+					再把你計算後的結果存在某個檔案
+				</section>
+				<section>
+					<h2>像這樣</h2>
+					<div class="prob">
+						<div class="label">乘法問題</div>
+						Multiplication problem<hr/>
+						給你兩個數$a,\; b$，輸出$a*b$<p/>
+						輸入有多行，每行會有兩個整數$a,\; b$。<br/>
+						你要對每筆輸入，輸出其$a*b$的值並換行。<p/>
+						<div class="fragment">
+							請從<code style="border:2px #AAAAAA solid;">test.in</code>讀取資料<br/>
+							把結果輸出到<code style="border:2px #AAAAAA solid;">test.out</code>
+						</div>
+					</div>
+					<div class="fragment">
+						這種題目在比賽中常常遇到喔，所以至少要會簡單讀檔！
+					</div>
+				</section>
+			</section>
+			<section>
+				<section>
+					<h2>C的簡易讀寫檔</h2>
+				</section>
+				<section data-markdown>
+					<script type="text/template">
+						首先不要管讀檔，用一般的方法寫完code
+						``` cpp
+						#include<stdio.h>
+						int main(){
+							int a,b;
+							while(scanf("%d%d",&a,&b)!=EOF){
+								printf("%lld\n",(long long)a*b);
+							}
+							return 0;
+						}
+						```
+					</script>
+				</section>
+				<section data-markdown>
+					<script type="text/template">
+						之後再main函數底下插入```freopen```
+						``` cpp
+						#include<stdio.h>
+						int main(){
+							/////////////////////////////////
+							freopen("test.in","r",stdin);
+							freopen("test.out","w",stdout);
+							/////////////////////////////////
+							int a,b;
+							while(scanf("%d%d",&a,&b)!=EOF){
+								printf("%lld\n",(long long)a*b);
+							}
+							return 0;
+						}
+						```
+						<div class="fragment">可以直接讀寫檔案了</div>
+					</script>
+				</section>
+				<section>
+					<h2>參數說明</h2>
+					<div class="theorem">
+						<code>freopen(檔案名稱,讀或寫,當作哪個資料流);</code><br/>
+						<ol>
+							<li class="fragment">
+								<b>檔案名稱</b>：<br/>
+								就是你要讀取檔案的位置+名稱，可以是相對路徑或絕對路徑<br/>
+								例如<code>"D:\\Example\\test.in"</code>或是<code>"test.in"</code>
+							</li>
+							<li class="fragment">
+								<b>讀或寫</b>：<br/>
+								<code>"r"</code>表示讀(read)，<code>"w"</code>表示寫(write)
+							</li>
+							<li class="fragment">
+								<b>當作哪個資料流</b>：<br/>
+								你可以把你的讀寫檔操作當成某個資料流，例如:<br/>
+								<code>freopen("a.in","r",stdin)</code><br/>
+								就是從<code>a.in</code>讀取檔案，用stdin來操作<br/>
+								所以你可以直接使用scanf之類的東東
+							</li>
+						</ol>
+					</div>
+				</section>
+			</section>
+			<section>
+				<section>
+					<h2>C++的簡易讀寫檔</h2>
+				</section>
+				<section>
+					<h2>使用說明</h2>
+					<ol>
+						<li class="fragment">首先你要<code>#include&lt;fstream&gt;</code></li>
+						<li class="fragment">
+							之後定義一個fstream型別:<br/>
+							<code>fstream f;</code>
+						</li>
+						<li class="fragment">
+							設定他是要讀檔還是寫檔:<br/>
+							<code>f.open("test.in",ios::in);</code>讀檔<br/>
+							<code>f.open("test.out",ios::out);</code>寫檔</code>
+						</li>
+						<li class="fragment">像使用cin,cout一樣去使用它吧(請看範例)</li>
+						<li class="fragment">養成良好習慣，使用完記得<code>close</code></li>
+					</ol>
+				</section>
+				<section data-markdown>
+					<script type="text/template">
+						## 範例
+						``` cpp
+						#include<fstream>
+						using namespace std;
+						int main(){
+							fstream fin,fout;
+							fin.open("test.in",ios::in);
+							fout.open("test.out",ios::out);
+							int a,b;
+							while(fin>>a>>b){
+								fout<<(long long)a*b<<'\n';
+							}
+							fin.close();
+							fout.close();
+							return 0;
+						}
+						```
+						<div class="fragment">可以讀寫檔案了</div>
+					</script>
+				</section>
+				<section data-markdown>
+					<script type="text/template">
+						## 也可以讀一整行
+						``` cpp
+						#include<fstream>
+						#include<sstream>
+						using namespace std;
+						int main(){
+							fstream fin,fout;
+							fin.open("test.in",ios::in);
+							fout.open("test.out",ios::out);
+							int a,b;
+							string s;
+							while(getline(fin,s)){
+								stringstream ss(s);
+								ss>>a>>b;
+								fout<<(long long)a*b<<'\n';
+							}
+							fin.close();
+							fout.close();
+							return 0;
+						}
+						```
+					</script>
+				</section>
+				<section>
+					千萬記得不管怎樣都不要用<code>endl</code><br/>
+					超級慢！！
+				</section>
+			</section>
+			<section>
+				<section>
+					<h2>heap</h2>
+				</section>
+				<section>
+					<h2>課程內容</h2>
+					<ul>
+						<li>priority queue</li>
+						<li>直接用陣列做 $\ord{n}$</li>
+						<li>分組 $\ord{\sqrt{n}}$</li>
+						<li>heap $\ord{\log{n}}$</li>
+					</ul>
+				</section>
+			</section>
+			<section>
+				<section>
+					<h2>priority queue</h2>
+				</section>
+				<section>
+					<ul>
+						<li class="fragment">
+							複習一下之前講過的資料結構:<br/>
+							<ul>
+								<li>stack: first in last out</li>
+								<li>queue: first in first out</li>
+							</ul>
+						</li>
+						<li class="fragment">
+							如果現在想要pop的不是最先進去的，也不是最後進去的，而是權重最大(小)的呢?<br/>
+							<ul>
+								<li class="fragment">priority queue</li>
+							</ul>
+						</li>
+						<li class="fragment">以下為了方便講解，元素都是數字，<b>權重</b>即是數字的大小，例如3的權重比2大</li>
+					</ul>
+				</section>
+				<section>
+					<h2>基本操作</h2>
+					<ul>
+						<li class="fragment">push:將一個元素放入priority queue中</li>
+						<li class="fragment">pop:將priority queue中權重最大的元素拿掉</li>
+						<li class="fragment">top:詢問priority queue中權重最大的元素</li>
+					</ul>
+				</section>
+			</section>
+			<section>
+				<section>
+					<h2>最直接的做法</h2>
+				</section>
+				<section>
+					<ul>
+						<li>用陣列實作</li>
+						<li class="fragment">
+							push:<br/>
+							放在陣列尾端就好了 $\ord{1}$
+						</li>
+						<li class="fragment">
+							top:<br/>
+							掃描陣列所有的元素找最大的 $\ord{n}$
+						</li>
+						<li class="fragment">
+							pop:<br/>
+							找到最大值 $\ord{n}$<br/>
+							之後把它用最後一個元素取代掉 $\ord{1}$<br/>
+							總複雜度還是$\ord{n}$
+						</li>
+					</ul>
+				</section>
+				<section>
+					<h2>TLE</h2>
+					top和pop太慢了
+				</section>
+			</section>
+			<section>
+				<section>
+					<h2>最直接的做法-改良版</h2>
+				</section>
+				<section>
+					改良一下，讓陣列的第一個元素保持最大
+				</section>
+				<section>
+					<ul>
+						<li class="fragment">
+							push:<br/>
+							先放在陣列尾端，然後如果比陣列第一個元素還大的話就和陣列第一個元素交換位置 $\ord{1}$
+						</li>
+						<li class="fragment">
+							top:<br/>
+							就陣列第一個元素啊 $\ord{1}$
+						</li>
+						<li class="fragment">
+							pop:<br/>
+							找到最大值 $\ord{1}$<br/>
+							把它用其他元素的最大值取代掉 $\ord{n}$<br/>
+							總複雜度還是$\ord{n}$
+						</li>
+					</ul>
+				</section>
+				<section>
+					<h2>TLE</h2>
+					pop太慢了
+				</section>
+			</section>
+			<section>
+				<section>
+					<h2>分組作法</h2>
+				</section>
+				<section>
+					<h2>精神</h2>
+					將k個元素分成一組，並紀錄每組中最大的元素<br/>
+					以下以 $k = 2$ 為例，每一組權重最大的放前面
+				</section>
+				<section>
+					<ul>
+						<li>
+							push:<br/>
+							<table class="fragment" align="left">
+								<tr>
+									<td bgcolor="red">5</td>
+									<td bgcolor="red">4</td>
+									<td bgcolor="blue">6</td>
+									<td bgcolor="blue">3</td>
+									<td bgcolor="red">1</td>
+								</tr>
+							</table>
+							<div class="fragment">$\Longleftarrow$插入 2</div>
+							<br/>
+							<table class="fragment" align="left">
+								<tr>
+									<td bgcolor="red">5</td>
+									<td bgcolor="red">4</td>
+									<td bgcolor="blue">6</td>
+									<td bgcolor="blue">3</td>
+									<td bgcolor="red">1</td>
+									<td bgcolor="red">2</td>
+								</tr>
+							</table>
+							<div class="fragment">$\Longleftarrow 2 > 1(最大值)$，交換位置</div>
+							<br/>
+							<table class="fragment" align="left">
+								<tr>
+									<td bgcolor="red">5</td>
+									<td bgcolor="red">4</td>
+									<td bgcolor="blue">6</td>
+									<td bgcolor="blue">3</td>
+									<td bgcolor="red">2</td>
+									<td bgcolor="red">1</td>
+								</tr>
+							</table>
+							<br/><br/>
+							<ul class="fragment">
+								<li>放進陣列尾端$\ord{1}$</li>
+								<li>和同組的最大值比較$\ord{1}$</li>
+								<li>整體來看$\ord{1}$</li>
+							</ul>
+						</li>
+					</ul>
+				</section>
+				<section>
+					<ul>
+						<li>top:找每組中最大的出來比較就好了 $\ord{n/k}$</li>
+						<li class="fragment">
+							pop:<br/>
+							<table class="fragment" align="left">
+								<tr>
+									<td bgcolor="red">5</td>
+									<td bgcolor="red">4</td>
+									<td bgcolor="blue">6</td>
+									<td bgcolor="blue">3</td>
+									<td bgcolor="red">2</td>
+									<td bgcolor="red">1</td>
+								</tr>
+							</table>
+							<div class="fragment">$\Longleftarrow$找到最大值，pop掉</div>
+							<br/>
+							<table class="fragment" align="left">
+								<tr>
+									<td bgcolor="red">5</td>
+									<td bgcolor="red">4</td>
+									<td bgcolor="blue">X</td>
+									<td bgcolor="blue">3</td>
+									<td bgcolor="red">2</td>
+									<td bgcolor="red">1</td>
+								</tr>
+							</table>
+							<div class="fragment">$\Longleftarrow$最後一個元素補上</div>
+							<br/>
+							<table class="fragment" align="left">
+								<tr>
+									<td bgcolor="red">5</td>
+									<td bgcolor="red">4</td>
+									<td bgcolor="blue">1</td>
+									<td bgcolor="blue">3</td>
+									<td bgcolor="red">2</td>
+								</tr>
+							</table>
+							<div class="fragment">$\Longleftarrow$找出最大元素放在前面</div>
+							<br/>
+							<table class="fragment" align="left">
+								<tr>
+									<td bgcolor="red">5</td>
+									<td bgcolor="red">4</td>
+									<td bgcolor="blue">3</td>
+									<td bgcolor="blue">1</td>
+									<td bgcolor="red">2</td>
+								</tr>
+							</table>
+						</li>
+					</ul>
+				</section>
+				<section>
+					<ul>
+						<li>
+							pop:<br/>
+							<ul>
+								<li>找到最大值，pop掉 $\ord{n/k}$</li>
+								<li>最後一個元素補上 $\ord{1}$</li>
+								<li>找出最大元素放在前面 $\ord{k}$</li>
+								<li>總複雜度 $\ord{n/k}+\ord{k}$，視$k$的大小而定</li>
+							</ul>
+						</li>
+					</ul>
+				</section>
+				<section>
+					我們設$k=\sqrt{n}$<br/>
+					這樣top和pop的複雜度就變成$\ord{\sqrt{n}}$了
+				</section>
+				<section>
+					當大約$n \leq 4*10^5$的時候不會TLE，但可以做得更好
+				</section>
+			</section>
+			<section>
+				<section>
+					<h2>complete binary tree</h2>
+					<div class="theorem">
+						特性：深度為$\ord{\log{n}}$。各層節點全滿，除了最後一層，最後一層節點全部靠左。<br/>
+						<img src="img/CompleteBinaryTree_1000.png"><br/>
+						設根節點編號為1。假設現在有一個節點編號是$i$，那他的父節點編號是$\floor{i/2}$，左子節點編號是$i*2$，右子節點編號是$i*2+1$<br/>
+						因為這個特性，我們可以利用陣列儲存complete binary tree。
+					</div>
+				</section>
+				<section>
+					<h2>heap</h2>
+					<ul>
+						<li>這次的主角</li>
+						<li>heap其實是一顆complete binary tree</li>
+						<li class="fragment">性質：父節點的權重不小於子節點的權重</li>
+					</ul>
+					<img src="img/heap1.JPG">
+				</section>
+			</section>
+			<section>
+				<section>
+					<h2>push</h2>
+					<div class="theorem">
+						<div class="label">push</div>
+						將元素加入priority queue<hr/>
+						<img src="img/heap1.JPG"><br/>
+					</div>
+				</section>
+				<section>
+					<h2>push</h2>
+					<div class="theorem">
+						<div class="label">push</div>
+						將元素放進Tree<hr/>
+						<img src="img/heap2.JPG"><br/>
+						將元素放進Tree $\ord{1}$
+					</div>
+				</section>
+				<section>
+					<h2>push</h2>
+					<div class="theorem">
+						<div class="label">push</div>
+						和父節點比較<hr/>
+						<img src="img/heap3.JPG"><br/>
+						將元素放進Tree $\ord{1}$<br/>
+						和父節點比較 $\ord{1}$<br/>
+					</div>
+				</section>
+				<section>
+					<h2>push</h2>
+					<div class="theorem">
+						<div class="label">push</div>
+						一直和父節點比較，往上浮，直到權重不大於父節點<hr/>
+						<img src="img/heap4.JPG"><br/>
+						將元素放進Tree $\ord{1}$<br/>
+						和父節點比較 $\ord{1}*\ord{\log{n}}$<br/>
+						一直往上浮，直到權重不大於父節點，最多比較$\ord{\log{n}}$次
+					</div>
+				</section>
+			</section>
+			<section>
+				<h2>top</h2>
+				根節點元素一定是最大的啊！<br/>
+				$\ord{1}$解決<br/>
+				<img src="img/heap5.JPG">
+			</section>
+			<section>
+				<section>
+					<h2>pop</h2>
+					<div class="theorem">
+						<div class="label">pop</div>
+						拿掉權重最大的元素<hr/>
+						<img src="img/heap5.JPG"><br/>
+					</div>
+				</section>
+				<section>
+					<h2>pop</h2>
+					<div class="theorem">
+						<div class="label">pop</div>
+						拿掉權重最大的元素<hr/>
+						<img src="img/heap6.JPG"><br/>
+						根節點的權重最大，pop掉 $\ord{1}$<br/>
+					</div>
+				</section>
+				<section>
+					<h2>pop</h2>
+					<div class="theorem">
+						<div class="label">pop</div>
+						將最後一個元素放到根節點<hr/>
+						<img src="img/heap7.JPG"><br/>
+						根節點的權重最大，pop掉 $\ord{1}$<br/>
+						將最後一個元素放到根節點 $\ord{1}$<br/>
+					</div>
+				</section>
+				<section>
+					<h2>pop</h2>
+					<div class="theorem">
+						<div class="label">pop</div>
+						和兩個子節點中權重最大的那個比較<hr/>
+						<img src="img/heap8.JPG"><br/>
+						根節點的權重最大，pop掉 $\ord{1}$<br/>
+						將最後一個元素放到根節點 $\ord{1}$<br/>
+						和兩個子節點中權重最大的那個比較 $\ord{1}$<br/>
+					</div>
+				</section>
+				<section>
+					<h2>pop</h2>
+					<div class="theorem">
+						<div class="label">pop</div>
+						一直下沉直到權重不小於兩個子節點<hr/>
+						<img src="img/heap9.JPG"><br/>
+						根節點的權重最大，pop掉 $\ord{1}$<br/>
+						將最後一個元素放到根節點 $\ord{1}$<br/>
+						和兩個子節點中權重最大的那個比較 $\ord{1}*\ord{\log{n}}$<br/>
+						一直下沉直到權重不小於兩個子節點，最多比較 $\ord{\log{n}}$次
+					</div>
+				</section>
+			</section>
+			<section>
+				<section>
+					<h2>操作複雜度</h2>
+					<ul>
+						<li>push:$\ord{\log{n}}$</li>
+						<li>top:$\ord{1}$</li>
+						<li>pop:$\ord{\log{n}}$</li>
+					</ul>
+				</section>
+				<section>
+					<h2><a href="https://www.cs.usfca.edu/~galles/visualization/Heap.html" target="_blank">heap用陣列模擬</a></h2>
+				</section>
+			</section>
+			<!--結束了-->
+		</div>
+	</div>
+	<script src="js/jquery.js"></script>
+	<script src="reveal/lib/js/head.min.js"></script>
+	<script src="reveal/js/reveal.js"></script>
+	<script src="js/sketch.min.js"></script>
+	<script>// Full list of configuration options available at:
+	// https://github.com/hakimel/reveal.js#configuration
+	Reveal.initialize({
+	  controls: true,
+	  progress: true,
+	  history: true,
+	  center: true,
+	  //-showNotes: true,
+
+	  transition: 'slide', // none/fade/slide/convex/concave/zoom
+
+	  // Optional reveal.js plugins
+	  dependencies: [
+		{ src: 'reveal/lib/js/classList.js', condition: function() { return !document.body.classList; } },
+		{ src: 'reveal/plugin/markdown/marked.js', condition: function() { return !!document.querySelector( '[data-markdown]' ); } },
+		{ src: 'reveal/plugin/markdown/markdown.js', condition: function() { return !!document.querySelector( '[data-markdown]' ); } },
+		{ src: 'reveal/plugin/highlight/highlight.js', async: true, callback: function() { hljs.initHighlightingOnLoad(); } },
+		{ src: 'reveal/plugin/zoom-js/zoom.js', async: true },
+		{ src: 'reveal/plugin/notes/notes.js', async: true },
+		{ src: 'reveal/plugin/math/math.js', async: true, callback: function() {
+		  setTimeout( function() {
+			MathJax.Hub.Config({
+			  SVG: {
+				scale: 90
+				},
+			  "HTML-CSS": {
+				scale: 90,
+				}
+			  });
+			}, 2000);
+		  },
+		  config: 'TeX-AMS_HTML-full'
+		},
+		{ src: 'js/dazzleSketch.js', async: true }
+	  ]
+	});</script>
+	</body>
+</html>
