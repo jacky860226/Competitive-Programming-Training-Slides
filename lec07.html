@@ -2,7 +2,7 @@
 <html>
 	<head>
 		<meta charset="utf-8">
-		<title>競技程式設計</title>
+		<title>第七周-二分搜與並查集</title>
 		<meta name="description" content="Competitive Programming Training">
 		<meta name="author" content="SunMoon Master">
 		<meta name="apple-mobile-web-app-capable" content="yes">
@@ -37,37 +37,96 @@
 			</span>
 			<!-- ... 這裡是註解文字 ... -->
 			<section>
-				<h1>競技程式設計</h1>
+				<h1>二分搜與並查集</h1>
 			</section>
 			<section>
 				<section>
-					<h2><a href="introduce.html" target="_blank">Introduce</a></h2>
+					<h2>二分搜</h2>
 				</section>
 				<section>
-					<h2><a href="lec01.html" target="_blank">第一周-進階語法</a></h2>
-				</section>
-				<section>
-					<h2><a href="lec02.html" target="_blank">第二周-進階遞迴</a></h2>
-					<h2><a href="https://drive.google.com/open?id=0B6NYSy8f6mQLbmRGZlhpbTdDMjQ" target="_blank">第二周-數學基礎</a></h2>
-				</section>
-				<section>
-					<h2><a href="lec03.html" target="_blank">第三周-基礎資料結構</a></h2>
-				</section>
-				<section>
-					<h2><a href="https://drive.google.com/open?id=0B6NYSy8f6mQLbjVLR2dBaVhaelU" target="_blank">第四周-DFS&BFS</a></h2>
-				</section>
-				<section>
-					<h2><a href="lec05.html" target="_blank">第五周-簡單檔案讀寫&heap</a></h2>
-				</section>
-				<section>
-					<h2><a href="https://drive.google.com/file/d/0Bzxow2VOUeFGQmFtUURsTjYteEE/view" target="_blank">第六周-STL</a></h2>
-				</section>
-				<section>
-					<h2><a href="lec07.html" target="_blank">第七周-二分搜+並查集</a></h2>
+					<h2>適用條件</h2>
+					你要搜尋的東西有單調性(遞增、遞減之類的)
 				</section>
 			</section>
 			<section>
-				<h1><a href="http://140.114.77.128:2720/sky/index.php" target="_blank">sky online judge</a></h1>
+				<section>
+					用以搜尋已排序的一串資料。其原理為將欲搜尋的值，與搜索範圍的中間值做比對。
+				</section>
+				<section>
+					若是搜尋值與中間值不同，且搜尋值比中間值為大。由於資料有單調性，我們可以得知：中間值以前的資料全都比搜尋值還小，所以我們就不需要再浪費時間搜尋這個範圍的值。
+				</section>
+			</section>
+			<section>
+				<section>
+					相反的，若是搜尋值比中間值為小，我們也可以得知：中間值以後的資料全都比搜尋值還大，也代表接下來我們不需要去尋找中間值以後的值。
+				</section>
+				<section>
+					接著，由於搜尋到資料的可能範圍僅剩下一半。我們運用同樣的方式，取出這個範圍資料的中間值與搜尋值做比對。再依據此中間值將資料分成兩半，直到找到搜尋值為止。
+				</section>
+			</section>
+			<section>
+				<img src="img/binary-and-linear-search-animations.gif">
+			</section>
+			<section>
+				<section>
+					<h2>CODE虛擬碼</h2>
+				</section>
+				<section data-markdown>
+					<script type="text/template">
+						## 虛擬碼如下
+						``` cpp
+						binary_search(Type data[1..n], Type key){
+							Index low = 1;
+							Index high = n;
+							while (low <= high){
+								Index mid = (low + high) / 2;
+								if (data[mid] == key)
+									return mid;
+								else if (data[mid] > key)
+									high = mid - 1;
+								else if (data[mid] < key)
+									low = mid + 1;
+							}
+							return "Not found";
+						}
+						```
+					</script>
+				</section>
+				<section data-markdown>
+					<script type="text/template">
+						## 遞迴版本
+						``` cpp
+						binary_search(Type data[1..n], Index low, Index high, Type key){
+							if(low > high)
+								return "Not found";
+							Index mid = (low + high) / 2;
+							if (data[mid] = key)
+								return mid;
+							else if (data[mid] > key)
+								binary_search(data, low, high = mid - 1, key);
+							else if (data[mid] < key)
+								binary_search(data, mid + 1, high, key);
+						}
+						```
+					</script>
+				</section>
+			</section>
+			<section>
+				<section>
+					<h2>注意</h2>
+					題目當然不會給你陣列讓你搜啊，通常都是答案有單調性，必須要用二分搜去查找答案所在
+				</section>
+				<section>
+					<div class="prob">
+						<div class="label">兩隻惡魔</div>
+						<hr/>
+						<a href="http://140.114.77.128:2720/sky/index.php/problem/view/29" target="_blank">題目在這裡</a><br/>
+						這題其實用deque是可以做的喔，知道我在說什麼的就來吧！
+					</div>
+				</section>
+			</section>
+			<section>
+				<h2><a href="https://jacky860226.github.io/disjoint-set-data-structure-slides/#/" target="_blank">並查集</a></h2>
 			</section>
 			<!--結束了-->
 		</div>
