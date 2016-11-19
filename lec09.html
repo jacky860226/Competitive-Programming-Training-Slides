@@ -1,0 +1,342 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<title>第七周-二分搜與並查集</title>
+		<meta name="description" content="Competitive Programming Training">
+		<meta name="author" content="SunMoon Master">
+		<meta name="apple-mobile-web-app-capable" content="yes">
+		<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+		<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, minimal-ui">
+		<link rel="stylesheet" href="reveal/css/reveal.css">
+		<link rel="stylesheet" href="reveal/css/theme/black.css" id="theme">
+		<link rel="stylesheet" href="css/style.css"><!-- Code syntax highlighting -->
+		<link rel="stylesheet" href="reveal/lib/css/zenburn.css">
+		<!-- Printing and PDF exports --><script>
+			var link = document.createElement( 'link' );
+			link.rel = 'stylesheet';
+			link.type = 'text/css';
+			link.href = window.location.search.match( /print-pdf/gi ) ? 'reveal/css/print/pdf.css' : 'reveal/css/print/paper.css';
+			document.getElementsByTagName( 'head' )[0].appendChild( link );
+		</script><!--[if lt IE 9]><script src="lib/js/html5shiv.js"></script><![endif]-->
+	</head>
+	<body>
+	<div></div>
+	<div class="reveal">
+		<div class="slides">
+			<span style='display:none;'>
+			\( 
+			  \newcommand{\ord}[1]{\mathcal{O}\left(#1\right)}
+			  \newcommand{\abs}[1]{\lvert #1 \rvert}
+			  \newcommand{\floor}[1]{\lfloor #1 \rfloor}
+			  \newcommand{\ceil}[1]{\lceil #1 \rceil}
+			  \newcommand{\opord}{\operatorname{\mathcal{O}}}
+			  \newcommand{\argmax}{\operatorname{arg\,max}}
+			  \newcommand{\str}[1]{\texttt{"#1"}}
+			\)
+			</span>
+			<!-- ... 這裡是註解文字 ... -->
+			<section>
+				<h1>動態規劃</h1>
+				Dynamic Programming
+			</section>
+			<section>
+				<section>
+					<h2>什麼是動態規劃(DP)</h2>
+					動態規劃與分而治之的基本想法是相近的，都是把問題不斷分割成比較小的子問題，直到我們可以直接解決，之後再由子問題的結果推出大問題的答案。但在遞迴的過程中，經常會發生同樣一個子問題被處理了好幾次的狀況
+				</section>
+				<section data-markdown>
+					<script type="text/template">
+						## 費氏數列
+						像是這東東的遞迴就會產生很多重複的"狀態"<br/>
+						複雜度也是指數級的
+						``` cpp
+						int fb(size_t n){
+							if(n==0||n==1)return 1;
+							return fb(n-1)+fb(n-2);
+						}
+						```
+					</script>
+				</section>
+				<section data-markdown>
+					<script type="text/template">
+						## 費氏數列
+						動態規劃就是用個東西把算過的狀態存起來
+						``` cpp
+						int F[MAXN];//算過就存在這裡
+						inline void init(){
+							memset(F,0,sizeof(F));
+						}
+						int fb(size_t n){
+							if(F[n])return F[n];//0表示沒算過
+							if(n==0||n==1)return 1;
+							return F[n]=fb(n-1)+fb(n-2);
+						}
+						```
+					</script>
+				</section>
+			</section>
+			<section>
+				<section>
+					<h2>動態規劃的特性</h2>
+					通常會使用動態規劃來解決的問題分成兩種：最佳化問題與計數問題，而能套用動態規劃方法的問題通常要具備以下幾個條件
+				</section>
+				<section>
+					<h3>1.最佳子結構</h3>
+					在把問題分割成比較小的子問題時，先假設我們能得到比較小的問題的答案，我們要能夠藉由某種過程從這些答案推出母問題的答案。有時問題的子問題會互相影響，或著母問題最佳化時子問題不一定達到最佳，需要特別注意每個推論的正確性
+				</section>
+				<section>
+					<h3>2.重複子問題</h3>
+					在有重複的子問題，即會重複利用相同的子問題的結果時，使用動態規劃才有節省時間的意義，否則只是徒然浪費空間儲存不需要再次使用的結果而已
+				</section>
+				<section>
+					<h3>3.無後效性</h3>
+					解決動態規劃問題的過程可以分為幾個階段，使得每個階段所做的決策只與之前階段的結果有關，而與尚未出現的狀態無關。也就是說將每個狀態與其決策時相關的狀態以有向邊相連後，所產生的圖是一個有向無環圖(DAG)
+				</section>
+			</section>
+			<section>
+				<section>
+					<h2>名詞定義</h2>
+					<div class="theorem">
+						<b>狀態</b>：描述一個我們將要去解決的子問題之性質<br/>
+						<b>階段</b>：一些性質相近，可以同時處理的狀態集合<br/>
+						<b>決策</b>：每個階段中做出的一些選擇性的行動，也就是我們的程式所需要做出的選擇<br/>
+						<b>狀態轉移方程</b>：如何藉著其他狀態的答案算出某一狀態的答案，通常以遞迴式表示<br/>
+					</div>
+				</section>
+				<section>
+					對於一個動態規劃算法，通常其時間複雜度為<b>狀態數*狀態轉移花費</b>，而其空間複雜度至少為在某時刻所有已解決且之後可能被使用到的狀態數
+				</section>
+			</section>
+			<section>
+				<section>
+					<h2>動態規劃問題的解決方法</h2>
+					一般來說比較簡單的DP用以下幾個步驟就能解決了，難一點的DP目前你們應該是還不會碰到的
+				</section>
+				<section>
+					<h3>設計狀態</h3>
+					即使用幾個特性去描述一個子問題，使可能出現的狀態種數不會太多(別忘了動態規劃的時間複雜度直接取決於狀態數)，且狀態轉移過程中所有可能被使用到的子問題都能被這幾個特性去具體精確的描述。這也是解決動態規劃問題過程中最重要的一個步驟
+				</section>
+				<section>
+					<h3>推導狀態轉移方程</h3>
+					即如何利用其他狀態的答案推出這個狀態的方法。值得注意的是狀態轉移的過程必須要能建立一個決策順序，也就是不能有A 狀態的答案依賴於B 狀態，而B 狀態亦直接或間接的依賴於A 狀態的狀況發生，注意邊界條件
+				</section>
+				<section>
+					<h3>分析算法的正確性及時空花費</h3>
+					若時空花費無法滿足題目需求，則必須再想方法去優化你的算法的過程
+				</section>
+			</section>
+			<section>
+				<section>
+					<h1>例題講解</h1>
+					以最常遞增子序列為例
+				</section>
+				<section>
+					<h2>最常遞增子序列問題</h2>
+					<div class="prob">
+						給定一個數列$S$，請刪掉最少量的數字使得剩下的序列是嚴格遞增的(稱為LIS)。例如數列$S=\{4,2,3,7,5,6,8\}$的LIS是$\{2,3,5,6,8\}$，長度為5。<br/>
+						有兩個子題，子題一$|S| \leq 1000$，子題二$|S| \leq 10^6$
+					</div>
+					<div class="fragment">子題二比較難，二分搜+貪心+DP都會用到，我們先來處理子題一吧</div>
+				</section>
+			</section>
+			<section>
+				<section>
+					<h2>1.設計狀態</h2>
+					通常我們會把狀態名稱定為$dp$。<br/>
+					這題的狀態很簡單，令$dp(n)$為$S[0 \sim n]$中最長的LIS即可
+				</section>
+				<section>
+					<h2>2.推導狀態轉移方程</h2>
+					根據觀察，可以知道狀態間有以下的關係
+					$$dp(n)=max(\{dp(i):i < n \; and \; S[n]>S[i]\})+1$$
+					注意$max(\{\})=0$<p/>
+					<div class="fragment">
+						別忘了邊界條件$dp(0)=1$
+					</div>
+				</section>
+				<section>
+					<h2>3.分析算法的正確性及時空花費</h2>
+					每個狀態都儲存的話，要花費$\ord{n}$的空間<br/>
+					狀態轉移$\ord{n}$，有$n$個狀態，故會花費$\ord{n^2}$的時間
+				</section>
+			</section>
+			<section>
+				<section>
+					<h2>實作方式</h2>
+					分為top-down與bottom-up兩種，其中bottom-up即依照一定的決策順序枚舉每個狀態，對其依序套用狀態轉移方程求出結果。而top-down 的方法即對遞迴過程中每個狀態的答案做紀錄，並在再次呼叫時直接回傳答案，通常於其狀態的決策順序難以枚舉或狀態並不會完整擴展時較為適合。
+				</section>
+				<section data-markdown>
+					<script type="text/template">
+						## top-down
+						就遞迴，如果有算過就直接return答案
+						``` cpp
+						int dp[MAXN];
+						int s[MAXN];
+						int dfs(int n){
+							if(n==0)return 1;
+							if(dp[n])return dp[n];
+							dp[n]=0;
+							for(int i=0;i<n;++i){
+								if(s[n]>s[i]){
+									dp[n]=max(dp[n],dp[i]);
+								}
+							}
+							dp[n]+=1;
+							return dp[n];
+						}
+						```
+					</script>
+				</section>
+				<section data-markdown>
+					<script type="text/template">
+						## bottom-up
+						按照每個狀態被算出的先後順序計算答案
+						``` cpp
+						int dp[MAXN];
+						int s[MAXN];
+						int solve(int n){
+							dp[0]=1;
+							for(int i=1;i<n;++i){
+								dp[i]=0;
+								for(int j=0;j<i;++j){
+									if(s[i]>s[j]){
+										dp[i]=max(dp[i],dp[j]);
+									}
+								}
+								dp[i]+=1;
+							}
+							return dp[n-1];
+						}
+						```
+					</script>
+				</section>
+			</section>
+			<section>
+				<section>
+					<h2>狀態壓縮</h2>
+				</section>
+				<section>
+					有的時候你的狀態會是一個集合，這種題目為了讓你可以在時間內AC，會讓集合的大小約為$10 \sim 20$左右
+				</section>
+				<section>
+					我們可以用一個int或long long之類的東西來表示集合，然後可以用位元運算來進行操作
+				</section>
+				<section data-markdown>
+					<script type="text/template">
+						## 集合的操作
+						集合元素的編號由0開始
+						``` cpp
+						0; //空集合
+						1<<i; //只由第i號元素所組成的集合
+						(1<<n)-1; //由n個元素組成的集合{0,1,...,n-1}
+						if((S>>i)&1); //元素i是否包含在S中
+						S|(1<<i); //在集合中加入元素
+						S&~(1<<i); //從集合中取出元素
+						S|T; //S和T的聯集
+						S&T; //S和T的交集
+						S^T; //S和T的異或集
+						```
+					</script>
+				</section>
+				<section data-markdown>
+					<script type="text/template">
+						## 枚舉子集合
+						枚舉集合(1<<n)-1中所有子集合
+						``` cpp
+						void do_subset(int n){
+							for(int subset=0;subset<(1<<n);++subset){
+								//對子集合subset的處理
+							}
+						}
+						```
+					</script>
+				</section>
+				<section data-markdown>
+					<script type="text/template">
+						## 枚舉子集合
+						枚舉集合S的所有子集合
+						``` cpp
+						void do_S_subset(int S){
+							int subset=S;
+							do{
+								//對子集合subset的處理
+								subset=(subset-1)&S;
+							}while(subset!=S);
+						}
+						```
+					</script>
+				</section>
+				<section data-markdown>
+					<script type="text/template">
+						## 枚舉子集合
+						枚舉集合(1<<n)-1中大小為k的子集合
+						``` cpp
+						void do_k_subset(int n,int k){
+							int subset=(1<<k)-1;
+							while(subset<(1<<n)){
+								//對子集合subset的處理
+								int x=subset&-subset,y=subset+x;
+								subset=((subset&~y)/(x>>1))|y;
+							}
+						}
+						```
+					</script>
+				</section>
+			</section>
+			<section>
+				<h2>題目</h2>
+				<div class="prob">
+					本周有五題，每題code都不會太長，但是需要大量思考，各位可以在無聊或是上課不想聽或是跟男/女朋友約會時好好想一想喔！<br/>
+					<a href="http://140.114.77.128:2720/sky/index.php/problem/view/34" target="_blank">第一題</a> 注意如何從狀態回推答案<br/>
+					<a href="http://140.114.77.128:2720/sky/index.php/problem/view/35" target="_blank">第二題</a><br/>
+					<a href="http://140.114.77.128:2720/sky/index.php/problem/view/36" target="_blank">第三題</a><br/>
+					<a href="http://140.114.77.128:2720/sky/index.php/problem/view/37" target="_blank">第四題</a> 注意這題的狀態有包含集合<br/>
+					<a href="http://140.114.77.128:2720/sky/index.php/problem/view/38" target="_blank">第五題</a> 注意枚舉狀態的順序<br/>
+				</div>
+			</section>
+			<!--結束了-->
+		</div>
+	</div>
+	<script src="js/jquery.js"></script>
+	<script src="reveal/lib/js/head.min.js"></script>
+	<script src="reveal/js/reveal.js"></script>
+	<script src="js/sketch.min.js"></script>
+	<script>// Full list of configuration options available at:
+	// https://github.com/hakimel/reveal.js#configuration
+	Reveal.initialize({
+	  controls: true,
+	  progress: true,
+	  history: true,
+	  center: true,
+	  //-showNotes: true,
+
+	  transition: 'slide', // none/fade/slide/convex/concave/zoom
+
+	  // Optional reveal.js plugins
+	  dependencies: [
+		{ src: 'reveal/lib/js/classList.js', condition: function() { return !document.body.classList; } },
+		{ src: 'reveal/plugin/markdown/marked.js', condition: function() { return !!document.querySelector( '[data-markdown]' ); } },
+		{ src: 'reveal/plugin/markdown/markdown.js', condition: function() { return !!document.querySelector( '[data-markdown]' ); } },
+		{ src: 'reveal/plugin/highlight/highlight.js', async: true, callback: function() { hljs.initHighlightingOnLoad(); } },
+		{ src: 'reveal/plugin/zoom-js/zoom.js', async: true },
+		{ src: 'reveal/plugin/notes/notes.js', async: true },
+		{ src: 'reveal/plugin/math/math.js', async: true, callback: function() {
+		  setTimeout( function() {
+			MathJax.Hub.Config({
+			  SVG: {
+				scale: 90
+				},
+			  "HTML-CSS": {
+				scale: 90,
+				}
+			  });
+			}, 2000);
+		  },
+		  config: 'TeX-AMS_HTML-full'
+		},
+		{ src: 'js/dazzleSketch.js', async: true }
+	  ]
+	});</script>
+	</body>
+</html>
