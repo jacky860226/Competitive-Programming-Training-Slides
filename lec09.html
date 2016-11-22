@@ -180,11 +180,18 @@
 							dp[n]=0;
 							for(int i=0;i<n;++i){
 								if(s[n]>s[i]){
-									dp[n]=max(dp[n],dp[i]);
+									dp[n]=max(dp[n],dfs(i));
 								}
 							}
 							dp[n]+=1;
 							return dp[n];
+						}
+						inline int solve(int n){
+							int ans=0;
+							for(int i=0;i<n;++i){
+								ans=max(ans,dfs(i));
+							}
+							return ans;
 						}
 						```
 					</script>
@@ -196,7 +203,7 @@
 						``` cpp
 						int dp[MAXN];
 						int s[MAXN];
-						int solve(int n){
+						inline int solve(int n){
 							dp[0]=1;
 							int ans=1;
 							for(int i=1;i<n;++i){
@@ -280,7 +287,7 @@
 							while(subset<(1<<n)){
 								//對子集合subset的處理
 								int x=subset&-subset,y=subset+x;
-								subset=((subset&~y)/(x>>1))|y;
+								subset=(((subset&~y)/x)>>1)|y;
 							}
 						}
 						```
