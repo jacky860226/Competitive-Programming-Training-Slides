@@ -1,0 +1,576 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<title>DP題解</title>
+		<meta name="description" content="Competitive Programming Training">
+		<meta name="author" content="SunMoon Master">
+		<meta name="apple-mobile-web-app-capable" content="yes">
+		<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+		<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, minimal-ui">
+		<link rel="stylesheet" href="reveal/css/reveal.css">
+		<link rel="stylesheet" href="reveal/css/theme/black.css" id="theme">
+		<link rel="stylesheet" href="css/style.css"><!-- Code syntax highlighting -->
+		<link rel="stylesheet" href="reveal/lib/css/zenburn.css">
+		<!-- Printing and PDF exports --><script>
+			var link = document.createElement( 'link' );
+			link.rel = 'stylesheet';
+			link.type = 'text/css';
+			link.href = window.location.search.match( /print-pdf/gi ) ? 'reveal/css/print/pdf.css' : 'reveal/css/print/paper.css';
+			document.getElementsByTagName( 'head' )[0].appendChild( link );
+		</script><!--[if lt IE 9]><script src="lib/js/html5shiv.js"></script><![endif]-->
+	</head>
+	<body>
+	<div></div>
+	<div class="reveal">
+		<div class="slides">
+			<span style='display:none;'>
+			\( 
+			  \newcommand{\ord}[1]{\mathcal{O}\left(#1\right)}
+			  \newcommand{\abs}[1]{\lvert #1 \rvert}
+			  \newcommand{\floor}[1]{\lfloor #1 \rfloor}
+			  \newcommand{\ceil}[1]{\lceil #1 \rceil}
+			  \newcommand{\opord}{\operatorname{\mathcal{O}}}
+			  \newcommand{\argmax}{\operatorname{arg\,max}}
+			  \newcommand{\str}[1]{\texttt{"#1"}}
+			\)
+			</span>
+			<!-- ... 這裡是註解文字 ... -->
+			<section>
+				<h1>動態規劃題解</h1>
+				Dynamic Programming solve
+			</section>
+			<section>
+				<section>
+					<h2>馬勒戈壁的草泥馬分割</h2>
+					這題是給一個數字$n$，給出他所有分割，你要求按造字典序由大到小第$m$個分割
+				</section>
+				<section>
+					這題因為$n \leq 300$，所以$m$是long long範圍<br/>
+					當然直接暴力去分割一定TLE，但是求出第$m$個分割好像有困難?<br/>
+					<div class="fragment">先求出總共有幾個分割吧！總共有幾個都求不出來了，還要求第$m$個?</div>
+				</section>
+			</section>
+			<section>
+				<section>
+					<h2>總共有多少分割?</h2>
+					這裡我提供我的作法<br/>
+					<div class="theorem">
+						設$dp(pa,x)$表示你有$x$個東西可以分割<br/>
+						但是分割出來的最元素不會超過$pa$<br/>
+						而數字$n$的所有分割的答案就會是$dp(n,n)$
+					</div>
+				</section>
+				<section>
+					<div class="theorem">
+						舉例來說，$dp(5,7)=13$，這13種分法如下：
+						<pre><code class="cpp">5 2
+5 1 1
+-------------
+4 3
+4 2 1
+4 1 1 1
+-------------
+3 3 1
+3 2 2
+3 2 1 1
+3 1 1 1 1
+-------------
+2 2 2 1
+2 2 1 1 1
+2 1 1 1 1 1
+-------------
+1 1 1 1 1 1 1</code></pre>
+					</div>
+				</section>
+				<section>
+					<div class="theorem">
+						$dp(5,2)=2$
+						<pre><code class="cpp">2
+1 1</code></pre>
+						$dp(4,3)=3$
+						<pre><code class="cpp">3
+2 1
+1 1 1</code></pre>
+						$dp(3,4)=4$
+						<pre><code class="cpp">3 1
+2 2
+2 1 1
+1 1 1 1</code></pre>
+					</div>
+				</section>
+				<section>
+					<div class="theorem">
+						$dp(2,5)=3$
+						<pre><code class="cpp">2 2 1
+2 1 1 1
+1 1 1 1 1</code></pre>
+						$dp(1,6)=1$
+						<pre><code class="cpp">1 1 1 1 1 1</code></pre>
+					</div>
+					<div class="fragment">
+						有發現甚麼嗎?<br/>
+					</div>
+					<div class="fragment">
+						$dp(5,7)=dp(5,2)+dp(4,3)+dp(3,4)+dp(2,5)+dp(1,6)$
+					</div>
+				</section>
+				<section>
+					<h2>狀態轉移式</h2>
+					<div class="theorem">
+						根據觀察，可以得到以下的狀態轉移式<br/>
+						$$dp(pa,x)=\sum_{i=0}^{min(pa,x)} dp(i,x-i)$$
+						<div class="fragment">別忘了邊界條件：$dp(pa,0)=1$</div>
+					</div>
+				</section>
+				<section>
+					狀態有$\ord{n^2}$個，轉移$\ord{n}$<br/>
+					這樣我們就得到一個$\ord{n^3}$的DP<br/>
+					這題$n$最大是300，不會TLE<br/>
+					但是我們要找的是第$m$個分割啊，不是所有的數量
+				</section>
+			</section>
+			<section>
+				<section>
+					<h2>狀態回推解答</h2>
+					每個狀態，都是透過其他狀態轉移來的<br/>
+					所以可以根據你狀態的意義來回推解答
+				</section>
+				<section data-markdown>
+					<script type="text/template">
+						假設你dp陣列已經算出來了<br/>
+						你只要呼叫dfs(n,n,m)就可以得到答案了
+						``` cpp
+						vector<int> ans;
+						void dfs(int pa,int x,long long m){
+							if(x==0){
+								printf("%d",ans[0]);
+								for(int i=1;i<ans.size();i++)printf(",%d",ans[i]);
+								puts("");
+								return;
+							}
+							long long add=0;
+							for(int i=min(pa,x);i>0;--i){
+								add+=dp[i][x-i];
+								if(m<=add){
+									ans.push_back(i);
+									dfs(i,x-i,m-add+dp[i][x-i]);
+									return;
+								}
+							}
+						}
+						```
+					</script>
+				</section>
+			</section>
+			<section>
+				<section>
+					<h2>助教判斷抄襲的方法</h2>
+					這題考的其實是<b>最小編輯距離</b><br/>
+					是非常經典的題目<br/>
+					大部分用來判斷抄襲的方式都跟這很類似
+				</section>
+				<section>
+					這個DP的狀態也很好設計<br/>
+					令$dp(x,y)$為把$A[0 \sim x]$修改成$B[0 \sim y]$的最小編輯距離<br/>
+					顯然$dp(|A|-1,|B|-1)$就會是答案<p/>
+					<div class="fragment">困難點在於狀態轉移要怎麼設計</div>
+				</section>
+			</section>
+			<section>
+				<section>
+					<h2>狀態轉移</h2>
+					我們把<b>插入、刪除、修改</b>分開來討論<br/>
+				</section>
+				<section>
+					<h2>$A[x]==B[y]$</h2>
+					這個時候$dp(x,y)=dp(x-1,y-1)$應該很好理解吧
+				</section>
+				<section>
+					<h2>$A[x]!=B[y]$</h2>
+					可以知道在$A[x]!=B[y]$時，$dp(x,y)$就會是插入、刪除、修改所需的花費中最小的花費
+				</section>
+				<section>
+					<h2>插入</h2>
+					<div class="theorem">
+						我們的目標是要把$A[0 \sim x]$以最小費用修改成$B[0 \sim y]$<p/>
+						<b>插入</b>可以想成先把$A[0 \sim x]$以最小費用修改成$B[0 \sim y-1]$<br/>
+						之後在尾端插入$B[y]$<p/>
+						因此插入的最小代價為$dp(x,y-1)+c0$
+					</div>
+				</section>
+				<section>
+					<h2>刪除</h2>
+					<div class="theorem">
+						我們的目標是要把$A[0 \sim x]$以最小費用修改成$B[0 \sim y]$<p/>
+						<b>刪除</b>可以想成先把$A[0 \sim x]$刪除尾端元素成$A[0 \sim x-1]$後<br/>
+						在把刪除後的結果以最小費用修改成$B[0 \sim y]$<p/>
+						因此刪除的最小代價為$c1+dp(x-1,y)$
+					</div>
+				</section>
+				<section>
+					<h2>修改</h2>
+					<div class="theorem">
+						我們的目標是要把$A[0 \sim x]$以最小費用修改成$B[0 \sim y]$<p/>
+						<b>修改</b>可以想成先把$A[0 \sim x-1]$以最小費用修改成$B[0 \sim y-1]$<br/>
+						再把$A[x]$修改成$B[y]$</p>
+						因此修改的最小代價為$dp(x-1,y-1)+c2$
+					</div>
+				</section>
+				<section>
+					<h2>狀態轉移式</h2>
+					根據剛才我們的分析，可以得到以下的狀態轉移式<br/>
+					<div class="theorem">
+						$$
+						dp(x,y)=\left\{
+							\begin{array}{}
+								dp(x-1,y-1) & & {A[x]==b[y]}\\
+								min\left(
+									\begin{array}{rcl}
+										dp(x,y-1)+c0 \\
+										c1+dp(x-1,y) \\
+										dp(x-1,y-1)+c2
+									\end{array}
+								\right) & & {A[x]!=b[y]}
+							\end{array}
+						\right.
+						$$
+					</div>
+					<div class="fragment">實作時別忘了邊界條件啊！</div>
+				</section>
+			</section>
+			<section>
+				<section>
+					<h2>最常共同子序列</h2>
+					最常共同子序列是經典題目<br/>
+					隨便上網應該都可以找的到答案<br/>
+					只是這裡我出的是三個字串的版本<p/>
+					<div class="fragment">以下簡稱最常共同子序列為LCS</div>
+				</section>
+				<section>
+					<h2>定義狀態</h2>
+					很明顯的，這題狀態會是三維<br/>
+					令$dp(x,y,z)$表示$A[0 \sim x]$、$B[0 \sim y]$、$C[0 \sim z]$的LCS長度
+				</section>
+			</section>
+			<section>
+				<section>
+					<h2>狀態轉移</h2>
+					跟只有兩個字串的狀況很相近<br/>
+					我們可以分成兩個case討論
+				</section>
+				<section>
+					<h2>$A[x]==B[y]==C[z]$</h2>
+					很明顯這時候$dp(x,y,z)=dp(x-1,y-1,z-1)+1$
+				</section>
+				<section>
+					<h2>前項條件不滿足時</h2>
+					$A[x]$、$B[y]$、$C[z]$不會完全相同<br/>
+					<div class="fragment">表示把某個不一樣的元素刪掉，其LCS不變</div>
+					<div class="fragment">我們來看個例子</div>
+				</section>
+				<section>
+					<div class="theorem">
+						令$
+						A=abcbbbbba\\
+						B=abbbcbbac\\
+						C=acbbbbbba
+						$<br/>
+						很明顯的其LCS只有一個為$abbbbba$<p/>
+						但我們可以把$B$的最尾端元素去掉<br/>
+						令$B^{'}=abbbcbba$<br/>
+						則$A,B^{'},C$的LCS同樣是$abbbbba$
+					</div>
+				</section>
+				<section>
+					所以我們只要找到那個不一樣的元素<br/>
+					把它刪掉，用剩下來的東西去求LCS結果會是不變的<p/>
+					<div class="fragment">這個性質跟DP有甚麼關係?</div>
+				</section>
+				<section>
+					我們可以找出把$A[x]$、$B[y]$、$C[z]$刪掉情況下最長的LCS<br/>
+					也就是$dp(x-1,y,z)$、$dp(x,y-1,z)$、$dp(x,y,z-1)$的最大值<p/>
+					<div class="fragment">其結果就會是$dp(x,y,z)$的值</div>
+				</section>
+				<section>
+					<h2>狀態轉移式</h2>
+					根據剛剛的推論，我們可以得到以下的狀態轉移式
+					<div class="theorem">
+						$$
+						dp(x,y,z)=\left\{
+							\begin{array}{}
+								dp(x-1,y-1,z-1)+1 & & {A[x]==b[y]==C[z]}\\
+								max\left(
+									\begin{array}{rcl}
+										dp(x-1,y,z) \\
+										dp(x,y-1,z) \\
+										dp(x,y,z-1)
+									\end{array}
+								\right) & & {else}
+							\end{array}
+						\right.
+						$$
+					</div>
+				</section>
+			</section>
+			<section>
+				<section>
+					<h2>金坷垃生產基地</h2>
+					這題是經典的旅行銷售員問題<br/>
+					如果聽完我講解還不懂的話可以上網查
+				</section>
+				<section>
+					這題我們$n$最多只有16而已<br/>
+					大家可能一開始會想到一個$\ord{n!}$的方法<br/>
+					枚舉所有的排列，找出路徑最小的<p/>
+					<div class="fragment">很不幸$16!=20922789888000$ 會TLE</div>
+				</section>
+				<section>
+					<h2>試著用DP?</h2>
+					通常遇到$n$很小的題目<br/>
+					不是暴力硬幹，就是狀態壓縮DP
+				</section>
+				<section>
+					<h2>狀態設計</h2>
+					我們從1出發<br/>
+					設$dp(x,S)$表示在已經走了集合$S$中的所有元素<br/>
+					最後停在$x$這個生產基地的最短路徑長度<br/>
+					(走的路徑不會是一個環)<p/>
+					<div class="fragment">注意$S$是一個集合，會用到集合相關的操作</div>
+				</section>
+				<section>
+					舉例來說，$dp(8,\{2,5,8,10\})$<br/>
+					表示我從$1$開始，以某個順序經過$2,5,10$<br/>
+					最後停在$8$的最短路徑長度<p/>
+					<div class="fragment">則$dp(1,\{1 \sim n\})$就會是最終答案</div>
+				</section>
+			</section>
+			<section>
+				<section>
+					<h2>狀態轉移</h2>
+					<div class="fragment">為了方便起見，令$dis(u,v)$表示$u$到$v$的路徑長</div>
+				</section>
+				<section>
+					找出當前狀態與其他已經算過的狀態的關係<br/>
+					是狀態轉移的目標<p/>
+					可以先舉個例子，觀察它跟其他狀態的關係
+				</section>
+				<section>
+					以$dp(8,\{2,5,8,10\})$為例<br/>
+					表示我從$1$開始，以某個順序經過$2,5,10$<br/>
+					最後停在$8$的最短路徑長度<p/>
+					<div class="fragment">在到達$8$之前最後到達的點一定會是$2,5,10$其中一個<p/></div>
+					<div class="fragment">
+						假設在到達$8$之前最後到達的點為5<br/>
+						那$dp(8,\{2,5,8,10\})$其中一條可能的路徑長度為：<br/>
+						$dp(5,\{2,5,10\})+dis(5,8)$
+					</div>
+				</section>
+				<section>
+					以同樣的邏輯，可以發現：
+					$$
+					dp(8,\{2,5,8,10\})=min\left(
+						\begin{array}{rcl}
+							dp(2,\{2,5,10\})+dis(2,8)\\
+							dp(5,\{2,5,10\})+dis(5,8)\\
+							dp(10,\{2,5,10\})+dis(10,8)
+						\end{array}
+					\right)
+					$$
+				</section>
+				<section>
+					以一般化的情況來表示<br/>
+					<div class="theorem">
+						$let \; S^{'}=S-\{x\}$<br/>
+						$dp(x,S)=min(\{dp(u,S^{'})+dis(u,x):u \in S^{'}\})$
+					</div>
+					<div class="fragment">邊界條件?</div>
+				</section>
+				<section>
+					<h2>邊界條件</h2>
+					當$S=\{x\}$時，$dp(x,\{x\})$的值要怎麼定義呢?<p/>
+					<div class="fragment">
+						這時候$dp(x,\{x\})$表示我們從1出發<br/>
+						經過$x$，最後停在$x$<p/>
+					</div>
+					<div class="fragment">這不就是$dis(1,x)$嗎?</div>
+				</section>
+				<section>
+					<h2>邊界條件</h2>
+					因此我們可以設當$S=\{x\}$時，$dp(x,S)=dis(1,x)$<br/>
+					這樣我們就完美的解決這個問題了
+				</section>
+			</section>
+			<section>
+				<h2>迴文自動機</h2>
+				這題做法非常多元化<br/>
+				這裡介紹兩個容易想的做法<p/>
+				<div class="fragment">真的有迴文自動機的存在喔，只是你不會用而已</div>
+			</section>
+			<section>
+				<section>
+					<h2>方法一　找出最長迴文子序列</h2>
+					找出最長迴文子序列，那剩下不是最長迴文子序列的元素<br/>
+					一定要增加新的元素來讓它成為回文
+				</section>
+				<section>
+					<div class="theorem">
+						紅色部分是原本字串的其中一個最長迴文子序列<br/>
+						<font color="#FF0000">aac</font>d<font color="#FF0000">aa</font>b
+						<p/>
+						<div class="fragment">
+							剩下的d,b，一定要在字串裡面加入新的d,b來補齊<br/>
+							<font color="#00FF00">b</font><font color="#FF0000">aa</font><font color="#00FF00">d</font><font color="#FF0000">c</font>d<font color="#FF0000">aa</font>b
+						</div>
+						<p/>
+						<div class="fragment">
+							因為是最長迴文子序列，所以要加入的字元數會是最少的
+						</div>
+					</div>
+					<div class="fragment">
+						結論：$原本問題的答案=字串長度-最長迴文子序列長度$
+					</div>
+				</section>
+				<section>
+					最長迴文子字串如果只要求長度的話<br/>
+					可以直接轉化成LCS問題<p/>
+					<div class="fragment">
+						假設原本的字串叫$A$，令$B=$把$A$反轉後的字串<br/>
+						則$A$、$B$的LCS長度就會是最常迴文子序列長度<p/>
+					</div>
+					<div class="fragment">$A=aacdaab,B=baadcaa\\LCS(A,B)=5$</div>
+				</section>
+				<section>
+					<h2>注意</h2>
+					雖然LCS長度就會是最常迴文子序列長度<br/>
+					但是從LCS的DP狀態回推最常迴文子序列可能會是錯的<br/>
+					因為會找出其他的LCS<p/>
+					<div class="fragment">
+						kfclbckibbibjccbej<br/>
+						這個字串最長迴文是bcibbicb<br/>
+						但可能找出的LCS會是bcibbibc
+					</div>
+				</section>
+				<section>
+					找出一個最長迴文子序列是有其他方法的<br/>
+					因為不是這題重點那我就不講了
+				</section>
+			</section>
+			<section>
+				<section>
+					<h2>方法二　直接DP</h2>
+					通常一個字串會有$\ord{n^2}$以上時間複雜度的DP<br/>
+					那他的DP狀態常常會用一個<b>區間</b>來表示<br/>
+					這題就是一個很好的例子
+				</section>
+				<section>
+					<h2>狀態設計</h2>
+					設原本的字串為$S$<br/>
+					令$dp(l,r)$表示把$S[l \sim r]$變成迴文最少要插入多少字符<br/>
+					這題$dp(0,|S|-1)$就會是答案
+				</section>
+			</section>
+			<section>
+				<section>
+					<h2>狀態轉移</h2>
+					一樣分兩個case討論
+				</section>
+				<section>
+					<h2>$S[l]==S[r]$</h2>
+					顯然的，這個時候$dp(l,r)=dp(l+1,r-1)$<br/>
+					<div class="fragment">
+						可以想成把$S[l+1 \sim r-1]$變成迴文後<br/>
+						在頭尾插入$S[l]$和$S[r]$仍然是迴文
+					</div>
+				</section>
+				<section>
+					<h2>$S[l]!=S[r]$</h2>
+					這時候S[l]跟S[r]其中一個必須要用插入的字符來構成迴文<br/>
+					<div class="theorem">
+						<div class="fragment">
+							若$S[l]$要用插入的字符來構成迴文的話<br/>
+							所需要的最少花費為$dp(l+1,r)+1$<br/>
+							也就是先把$S[l+1 \sim r]$變成迴文後，在$r$的位置後插入$S[l]$的字符<br/>
+							這時$S[l]$和剛剛插入的字符就會構成迴文
+						</div>
+						<p/>
+						<div class="fragment">
+							若$S[r]$要用插入的字符來構成迴文的話<br/>
+							所需要的最少花費為$dp(l,r-1)+1$<br/>
+							也就是先把$S[l \sim r-1]$變成迴文後，在$l$的位置後插入$S[r]$的字符<br/>
+							這時$S[r]$和剛剛插入的字符就會構成迴文
+						</div>
+					</div>
+				</section>
+				<section>
+					<h2>$S[l]!=S[r]$</h2>
+					因此這時候$dp(l,r)=min(dp(l+1,r),dp(l,r-1))+1$
+				</section>
+				<section>
+					最後可以得到其狀態轉移式為：
+					<div class="theorem">
+						$$
+						dp(l,r)=\left\{
+							\begin{array}{}
+								dp(l+1,r-1) & & {S[l]==S[r]}\\
+								min\left(
+									\begin{array}{rcl}
+										dp(l+1,r)\\
+										dp(l,r-1)
+									\end{array}
+								\right)+1 & & {S[l]!=S[r]}
+							\end{array}
+						\right.
+						$$
+					</div>
+					<div class="fragment">
+						顯然的，邊界條件是當$l==r$時<br/>
+						$dp(l,r)=0$
+					</div>
+				</section>
+			</section>
+			<!--結束了-->
+		</div>
+	</div>
+	<script src="js/jquery.js"></script>
+	<script src="reveal/lib/js/head.min.js"></script>
+	<script src="reveal/js/reveal.js"></script>
+	<script src="js/sketch.min.js"></script>
+	<script>// Full list of configuration options available at:
+	// https://github.com/hakimel/reveal.js#configuration
+	Reveal.initialize({
+	  controls: true,
+	  progress: true,
+	  history: true,
+	  center: true,
+	  //-showNotes: true,
+
+	  transition: 'slide', // none/fade/slide/convex/concave/zoom
+
+	  // Optional reveal.js plugins
+	  dependencies: [
+		{ src: 'reveal/lib/js/classList.js', condition: function() { return !document.body.classList; } },
+		{ src: 'reveal/plugin/markdown/marked.js', condition: function() { return !!document.querySelector( '[data-markdown]' ); } },
+		{ src: 'reveal/plugin/markdown/markdown.js', condition: function() { return !!document.querySelector( '[data-markdown]' ); } },
+		{ src: 'reveal/plugin/highlight/highlight.js', async: true, callback: function() { hljs.initHighlightingOnLoad(); } },
+		{ src: 'reveal/plugin/zoom-js/zoom.js', async: true },
+		{ src: 'reveal/plugin/notes/notes.js', async: true },
+		{ src: 'reveal/plugin/math/math.js', async: true, callback: function() {
+		  setTimeout( function() {
+			MathJax.Hub.Config({
+			  SVG: {
+				scale: 90
+				},
+			  "HTML-CSS": {
+				scale: 90,
+				}
+			  });
+			}, 2000);
+		  },
+		  config: 'TeX-AMS_HTML-full'
+		},
+		{ src: 'js/dazzleSketch.js', async: true }
+	  ]
+	});</script>
+	</body>
+</html>
